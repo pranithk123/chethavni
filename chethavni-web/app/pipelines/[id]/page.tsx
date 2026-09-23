@@ -55,7 +55,7 @@ export default async function PipelineDetailPage({
     .order('created_at', { ascending: false })
     .limit(5)
 
-  const webhookUrl = `http://localhost:8080/v1/hook/${pipeline.pipeline_token}`
+  const webhookUrl = `${process.env.NEXT_PUBLIC_ENGINE_BASE_URL || "https://chethavni-production.up.railway.app"}/v1/hook/${pipeline.pipeline_token}`
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 p-8">
