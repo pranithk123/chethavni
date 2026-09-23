@@ -1,0 +1,11 @@
+.env
+.env.local
+.env*.local
+node_modules/
+vendor/
+.next/
+out/
+*.exe
+engine.exe
+main
+dist/
