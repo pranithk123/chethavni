@@ -18,11 +18,12 @@ export default async function DashboardPage() {
     redirect('/login')
   }
 
+  // Use maybeSingle() so it never throws PGRST116 if the profile row is missing
   const { data: profile } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
 
   const { data: pipelines } = await supabase
     .from('pipelines')
@@ -30,20 +31,22 @@ export default async function DashboardPage() {
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
+  const safePipelines = pipelines ?? []
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 p-8">
       <div className="mx-auto max-w-6xl space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-zinc-800 pb-5">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">⚡ Chethavni Dashboard</h1>
+            <h1 className="text-2xl font-bold tracking-tight">? Chethavni Dashboard</h1>
             <p className="text-sm text-zinc-400">
               Logged in as <span className="text-zinc-200">{user.email}</span>
             </p>
           </div>
           <div className="flex items-center gap-4">
             <Badge variant="secondary" className="bg-emerald-950 text-emerald-400 border-emerald-800">
-              Tier: {profile?.tier?.toUpperCase() || 'FREE'}
+              Tier: {profile?.tier ? String(profile.tier).toUpperCase() : 'FREE'}
             </Badge>
             <form action={signout}>
               <Button variant="outline" size="sm" className="border-zinc-700 hover:bg-zinc-800">
@@ -63,15 +66,18 @@ export default async function DashboardPage() {
         </div>
 
         {/* Pipelines Grid */}
-        {pipelines && pipelines.length > 0 ? (
+        {safePipelines.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {pipelines.map((p) => (
+            {safePipelines.map((p) => (
               <Link key={p.id} href={`/pipelines/${p.id}`}>
                 <Card className="border-zinc-800 bg-zinc-900/80 hover:bg-zinc-900 transition-colors cursor-pointer text-zinc-100 h-full flex flex-col justify-between">
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-lg text-emerald-400">{p.name}</CardTitle>
-                      <Badge variant="outline" className={p.is_active ? 'border-emerald-700 text-emerald-400' : 'border-zinc-700 text-zinc-500'}>
+                      <Badge
+                        variant="outline"
+                        className={p.is_active ? 'border-emerald-700 text-emerald-400' : 'border-zinc-700 text-zinc-500'}
+                      >
                         {p.is_active ? 'Active' : 'Paused'}
                       </Badge>
                     </div>
