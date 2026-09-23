@@ -1,17 +1,19 @@
-﻿import { createClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { signout } from '../login/actions'
 import { Button } from '@/components/ui/button'
 import { CreatePipelineDialog } from '@/components/CreatePipelineDialog'
-import { 
-  BellRing, 
-  Sparkles, 
-  ArrowRight, 
-  Heart,
-  Radio,
-  CheckCircle,
-  ExternalLink
+import {
+  ArrowRight,
+  BellRing,
+  CheckCircle2,
+  CircleDot,
+  GitBranch,
+  Globe2,
+  LogOut,
+  MessageSquare,
+  Webhook,
 } from 'lucide-react'
 
 export default async function DashboardPage() {
@@ -21,9 +23,7 @@ export default async function DashboardPage() {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) {
-    redirect('/login')
-  }
+  if (!user) redirect('/login')
 
   const { data: profile } = await supabase
     .from('profiles')
@@ -37,142 +37,158 @@ export default async function DashboardPage() {
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
-  const alerts = pipelines ?? []
-  const liveCount = alerts.filter((a) => a.is_active).length
+  const workflows = pipelines ?? []
+  const activeCount = workflows.filter((pipeline) => pipeline.is_active).length
 
   return (
-    <div className="min-h-screen bg-[#faf8ff] text-slate-800 antialiased font-sans selection:bg-pink-200 selection:text-pink-900">
-      {/* Top Navbar */}
-      <nav className="border-b border-pink-100 bg-white/80 backdrop-blur-md sticky top-0 z-40">
-        <div className="mx-auto max-w-5xl px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-2xl bg-gradient-to-tr from-pink-500 via-rose-400 to-sky-400 flex items-center justify-center shadow-md shadow-pink-200">
-              <BellRing className="h-5 w-5 text-white" />
+    <div className="min-h-screen bg-[#f8fbff] text-slate-800">
+      <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-7">
+          <Link href="/dashboard" className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-50 text-sky-600 ring-1 ring-sky-100">
+              <GitBranch className="h-4.5 w-4.5" />
             </div>
-            <div className="flex items-center gap-2">
-              <span className="font-bold text-slate-900 tracking-tight text-lg">Chethavni</span>
-              <span className="text-[11px] font-semibold tracking-wide px-2.5 py-0.5 rounded-full bg-pink-50 text-pink-600 border border-pink-200/60">
-                {profile?.tier || 'Free'}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <span className="text-xs font-medium text-slate-500 hidden sm:inline-block">
-              {user.email}
+            <span className="text-[17px] font-bold tracking-tight text-slate-900">Chethavni</span>
+            <span className="hidden rounded-full bg-violet-50 px-2 py-0.5 text-[10px] font-semibold text-violet-600 ring-1 ring-violet-100 sm:inline-flex">
+              {profile?.tier || 'Free'}
             </span>
+          </Link>
+
+          <div className="flex items-center gap-2.5">
+            <span className="hidden text-xs text-slate-500 md:block">{user.email}</span>
             <form action={signout}>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-slate-500 hover:text-rose-600 hover:bg-pink-50 rounded-xl text-xs font-medium transition-colors"
-              >
+              <Button variant="ghost" size="sm" className="h-8 rounded-lg px-2.5 text-xs text-slate-500 hover:bg-slate-50 hover:text-slate-800">
+                <LogOut className="mr-1.5 h-3.5 w-3.5" />
                 Sign out
               </Button>
             </form>
           </div>
         </div>
-      </nav>
+      </header>
 
-      {/* Main Container */}
-      <main className="mx-auto max-w-5xl px-6 py-10 space-y-8">
-        {/* Playful Welcome Banner */}
-        <div className="relative overflow-hidden rounded-3xl border border-pink-100 bg-gradient-to-br from-pink-100/60 via-purple-50/50 to-sky-100/70 p-7 sm:p-9 shadow-sm">
-          <div className="max-w-xl space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/90 text-pink-600 text-xs font-semibold shadow-xs border border-pink-100">
-              <Sparkles className="h-3.5 w-3.5 text-pink-500" />
-              Your alert center
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              Catch every alert without missing a beat.
-            </h1>
-            <p className="text-sm text-slate-600 leading-relaxed font-normal">
-              Forward Chartink screeners, TradingView alerts, and webhooks straight to Telegram, Discord, and Slack in real time.
-            </p>
-          </div>
+      <main className="mx-auto max-w-6xl space-y-9 px-5 py-8 sm:px-7 sm:py-10">
+        <section className="overflow-hidden rounded-2xl border border-sky-100 bg-white">
+          <div className="relative px-6 py-7 sm:px-8 sm:py-9">
+            <div className="pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full bg-sky-100/60 blur-3xl" />
+            <div className="pointer-events-none absolute right-24 -bottom-28 h-56 w-56 rounded-full bg-violet-100/50 blur-3xl" />
 
-          <div className="mt-6 flex flex-wrap gap-4 pt-4 border-t border-pink-200/50">
-            <div className="inline-flex items-center gap-2 bg-white/80 px-3.5 py-1.5 rounded-full text-xs font-medium text-slate-700 shadow-2xs border border-pink-100">
-              <span className="h-2 w-2 rounded-full bg-emerald-400" />
-              <span><strong>{liveCount}</strong> triggers live</span>
-            </div>
-            <div className="inline-flex items-center gap-2 bg-white/80 px-3.5 py-1.5 rounded-full text-xs font-medium text-slate-700 shadow-2xs border border-sky-100">
-              <Radio className="h-3.5 w-3.5 text-sky-500" />
-              <span>Instant forward</span>
-            </div>
-            <div className="inline-flex items-center gap-2 bg-white/80 px-3.5 py-1.5 rounded-full text-xs font-medium text-slate-700 shadow-2xs border border-purple-100">
-              <Heart className="h-3.5 w-3.5 text-rose-500 fill-rose-500" />
-              <span>Simple setup</span>
+            <div className="relative max-w-2xl">
+              <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-sky-50 px-2.5 py-1 text-[11px] font-semibold text-sky-700 ring-1 ring-sky-100">
+                <CircleDot className="h-3 w-3" />
+                Workflow automation
+              </div>
+              <h1 className="text-2xl font-bold tracking-tight text-slate-950 sm:text-3xl">
+                Connect your apps. Automate the work.
+              </h1>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500">
+                Build workflows that receive events from webhooks and route them to the tools you use.
+                Start simple, then add more steps as Chethavni grows.
+              </p>
+
+              <div className="mt-6 flex flex-wrap items-center gap-2.5">
+                <CreatePipelineDialog />
+                <span className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-2 text-xs font-medium text-slate-600 ring-1 ring-slate-200">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                  {activeCount} active workflow{activeCount === 1 ? '' : 's'}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Section Header */}
-        <div className="flex items-center justify-between pt-2">
-          <div>
-            <h2 className="text-lg font-bold text-slate-900 tracking-tight">Your Triggers</h2>
-            <p className="text-xs text-slate-500 mt-0.5">Click any trigger to view your webhook link or edit where it sends</p>
+          <div className="grid border-t border-slate-100 sm:grid-cols-3">
+            <div className="flex items-center gap-3 px-6 py-4 sm:border-r sm:border-slate-100">
+              <Webhook className="h-4 w-4 text-sky-500" />
+              <div>
+                <p className="text-xs font-semibold text-slate-800">Receive</p>
+                <p className="text-[11px] text-slate-500">Webhooks & events</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 px-6 py-4 sm:border-r sm:border-slate-100">
+              <GitBranch className="h-4 w-4 text-violet-500" />
+              <div>
+                <p className="text-xs font-semibold text-slate-800">Process</p>
+                <p className="text-[11px] text-slate-500">Map & transform data</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 px-6 py-4">
+              <Globe2 className="h-4 w-4 text-sky-500" />
+              <div>
+                <p className="text-xs font-semibold text-slate-800">Deliver</p>
+                <p className="text-[11px] text-slate-500">Apps & HTTP endpoints</p>
+              </div>
+            </div>
           </div>
-          <CreatePipelineDialog />
-        </div>
+        </section>
 
-        {/* Alerts Grid */}
-        {alerts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {alerts.map((alert) => (
-              <Link 
-                key={alert.id} 
-                href={`/pipelines/${alert.id}`}
-                className="group relative rounded-2xl border border-slate-200/80 bg-white hover:border-pink-300 hover:shadow-lg hover:shadow-pink-100/50 transition-all duration-200 p-5 flex flex-col justify-between"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-bold text-slate-800 group-hover:text-pink-600 transition-colors text-base truncate">
-                      {alert.name}
-                    </h3>
-                    <span 
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
-                        alert.is_active 
-                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200" 
-                          : "bg-slate-100 text-slate-500 border border-slate-200"
-                      }`}
-                    >
-                      <span className={`h-1.5 w-1.5 rounded-full ${alert.is_active ? 'bg-emerald-500' : 'bg-slate-400'}`} />
-                      {alert.is_active ? "Live" : "Paused"}
+        <section>
+          <div className="mb-4 flex items-end justify-between gap-4">
+            <div>
+              <h2 className="text-base font-semibold text-slate-950">Your workflows</h2>
+              <p className="mt-0.5 text-xs text-slate-500">Create, configure and manage your automations.</p>
+            </div>
+            <div className="hidden items-center gap-1.5 text-[11px] text-slate-400 sm:flex">
+              <MessageSquare className="h-3.5 w-3.5" />
+              Integrations are added inside each workflow
+            </div>
+          </div>
+
+          {workflows.length ? (
+            <div className="grid gap-3 md:grid-cols-2">
+              {workflows.map((workflow) => (
+                <Link
+                  key={workflow.id}
+                  href={`/pipelines/${workflow.id}`}
+                  className="group rounded-xl border border-slate-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-[0_8px_30px_rgba(14,165,233,0.08)]"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-sky-50 text-sky-600">
+                          <GitBranch className="h-4 w-4" />
+                        </div>
+                        <h3 className="truncate text-sm font-semibold text-slate-900 group-hover:text-sky-700">
+                          {workflow.name}
+                        </h3>
+                      </div>
+                      <p className="mt-3 line-clamp-2 text-xs leading-5 text-slate-500">
+                        {workflow.description || 'Automation workflow with a webhook trigger and configurable actions.'}
+                      </p>
+                    </div>
+
+                    <span className={`shrink-0 rounded-full px-2 py-1 text-[10px] font-semibold ring-1 ${
+                      workflow.is_active
+                        ? 'bg-emerald-50 text-emerald-700 ring-emerald-100'
+                        : 'bg-slate-50 text-slate-500 ring-slate-200'
+                    }`}>
+                      {workflow.is_active ? 'Active' : 'Paused'}
                     </span>
                   </div>
 
-                  <p className="text-xs text-slate-500 line-clamp-2 min-h-[32px]">
-                    {alert.description || "Active trigger forwarder."}
-                  </p>
-                </div>
-
-                <div className="pt-4 mt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                  <span className="text-[11px] text-slate-400">Tap to configure</span>
-                  <div className="inline-flex items-center gap-1 text-sky-600 group-hover:text-pink-600 font-semibold transition-colors">
-                    Manage
-                    <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+                  <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-3">
+                    <span className="text-[11px] text-slate-400">Open workflow</span>
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-sky-600">
+                      Configure
+                      <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+                    </span>
                   </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          <div className="rounded-3xl border border-dashed border-pink-200 bg-white/70 py-16 px-6 text-center space-y-4">
-            <div className="h-12 w-12 mx-auto rounded-2xl bg-pink-50 border border-pink-200 flex items-center justify-center text-pink-500">
-              <BellRing className="h-6 w-6" />
+                </Link>
+              ))}
             </div>
-            <div className="space-y-1">
-              <h3 className="text-base font-bold text-slate-900">No triggers yet</h3>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                Create your first trigger and paste the generated webhook into TradingView or Chartink to start receiving notifications.
+          ) : (
+            <div className="rounded-xl border border-dashed border-sky-200 bg-white px-6 py-14 text-center">
+              <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-sky-50 text-sky-600 ring-1 ring-sky-100">
+                <BellRing className="h-5 w-5" />
+              </div>
+              <h3 className="mt-4 text-sm font-semibold text-slate-900">No workflows yet</h3>
+              <p className="mx-auto mt-1 max-w-sm text-xs leading-5 text-slate-500">
+                Create a workflow, choose how it receives data, and connect it to one or more apps.
               </p>
+              <div className="mt-5">
+                <CreatePipelineDialog />
+              </div>
             </div>
-            <div className="pt-2">
-              <CreatePipelineDialog />
-            </div>
-          </div>
-        )}
+          )}
+        </section>
       </main>
     </div>
   )
