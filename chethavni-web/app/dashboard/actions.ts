@@ -36,3 +36,13 @@ export async function createPipeline(formData: FormData) {
   revalidatePath('/dashboard')
   redirect(`/pipelines/${data.id}`)
 }
+export async function signout() {
+  const { createClient } = await import("@/lib/supabase/server");
+  const { redirect } = await import("next/navigation");
+  const { revalidatePath } = await import("next/cache");
+  
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  revalidatePath("/", "layout");
+  redirect("/login");
+}
