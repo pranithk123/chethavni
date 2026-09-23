@@ -9,7 +9,10 @@ import {
   Send, 
   Mail, 
   Globe, 
-  Power 
+  Power, 
+  Trash2,
+  CheckCircle,
+  Copy
 } from 'lucide-react'
 
 interface PageProps {
@@ -39,34 +42,27 @@ export default async function PipelineDetailPage({ params }: PageProps) {
     notFound()
   }
 
-  const { data: slackChannels } = await supabase
-    .from('slack_channels')
-    .select('*')
-    .eq('pipeline_id', id)
-
-  const { data: emailRecipients } = await supabase
-    .from('email_recipients')
-    .select('*')
-    .eq('pipeline_id', id)
-
-  const { data: webhookForwarders } = await supabase
-    .from('webhook_forwarders')
-    .select('*')
-    .eq('pipeline_id', id)
-
-  const { data: logs } = await supabase
-    .from('alert_logs')
+  // Fetch all configured destinations for this trigger
+  const { data: destinations } = await supabase
+    .from('destinations')
     .select('*')
     .eq('pipeline_id', id)
     .order('created_at', { ascending: false })
-    .limit(20)
+
+  const safeDestinations = destinations ?? []
+
+  const telegramDests = safeDestinations.filter((d) => d.channel === 'telegram')
+  const discordDests = safeDestinations.filter((d) => d.channel === 'discord')
+  const slackDests = safeDestinations.filter((d) => d.channel === 'slack')
+  const emailDests = safeDestinations.filter((d) => d.channel === 'email')
+  const webhookDests = safeDestinations.filter((d) => d.channel === 'webhook')
 
   const engineBaseUrl =
     process.env.NEXT_PUBLIC_ENGINE_BASE_URL ||
     'https://chethavni-production.up.railway.app'
   const webhookUrl = `${engineBaseUrl}/v1/hook/${pipeline.pipeline_token}`
 
-  // Inline Server Actions
+  // Server Actions
   async function toggleStatus() {
     'use server'
     const sb = await createClient()
@@ -89,36 +85,78 @@ export default async function PipelineDetailPage({ params }: PageProps) {
     revalidatePath(`/pipelines/${id}`)
   }
 
+  async function handleAddTelegram(formData: FormData) {
+    'use server'
+    const botToken = formData.get('bot_token') as string
+    const chatID = formData.get('chat_id') as string
+    const sb = await createClient()
+    await sb.from('destinations').insert({
+      pipeline_id: id,
+      channel: 'telegram',
+      is_enabled: true,
+      config: { bot_token: botToken, chat_id: chatID },
+    })
+    revalidatePath(`/pipelines/${id}`)
+  }
+
+  async function handleAddDiscord(formData: FormData) {
+    'use server'
+    const webhookURL = formData.get('webhook_url') as string
+    const sb = await createClient()
+    await sb.from('destinations').insert({
+      pipeline_id: id,
+      channel: 'discord',
+      is_enabled: true,
+      config: { webhook_url: webhookURL },
+    })
+    revalidatePath(`/pipelines/${id}`)
+  }
+
   async function handleAddSlack(formData: FormData) {
     'use server'
-    const webhookUrl = formData.get('webhook_url') as string
+    const webhookURL = formData.get('webhook_url') as string
     const sb = await createClient()
-    await sb.from('slack_channels').insert({
+    await sb.from('destinations').insert({
       pipeline_id: id,
-      webhook_url: webhookUrl,
+      channel: 'slack',
+      is_enabled: true,
+      config: { webhook_url: webhookURL },
     })
     revalidatePath(`/pipelines/${id}`)
   }
 
   async function handleAddEmail(formData: FormData) {
     'use server'
-    const email = formData.get('email') as string
+    const apiKey = formData.get('api_key') as string
+    const to = formData.get('to') as string
+    const subject = (formData.get('subject') as string) || 'Chethavni Alert'
     const sb = await createClient()
-    await sb.from('email_recipients').insert({
+    await sb.from('destinations').insert({
       pipeline_id: id,
-      email: email,
+      channel: 'email',
+      is_enabled: true,
+      config: { api_key: apiKey, to: to, subject: subject },
     })
     revalidatePath(`/pipelines/${id}`)
   }
 
-  async function handleAddForwarder(formData: FormData) {
+  async function handleAddWebhook(formData: FormData) {
     'use server'
-    const targetUrl = formData.get('target_url') as string
+    const endpoint = formData.get('endpoint_url') as string
     const sb = await createClient()
-    await sb.from('webhook_forwarders').insert({
+    await sb.from('destinations').insert({
       pipeline_id: id,
-      target_url: targetUrl,
+      channel: 'webhook',
+      is_enabled: true,
+      config: { endpoint_url: endpoint },
     })
+    revalidatePath(`/pipelines/${id}`)
+  }
+
+  async function handleDeleteDestination(destId: string) {
+    'use server'
+    const sb = await createClient()
+    await sb.from('destinations').delete().eq('id', destId).eq('pipeline_id', id)
     revalidatePath(`/pipelines/${id}`)
   }
 
@@ -132,7 +170,7 @@ export default async function PipelineDetailPage({ params }: PageProps) {
             className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-pink-600 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to alerts
+            Back to triggers
           </Link>
 
           <form action={toggleStatus}>
@@ -158,35 +196,33 @@ export default async function PipelineDetailPage({ params }: PageProps) {
             {pipeline.name}
           </h1>
           <p className="text-sm text-slate-500">
-            {pipeline.description || 'Configured alert trigger.'}
+            {pipeline.description || 'Configured alert forwarder.'}
           </p>
         </div>
 
-        {/* Webhook Endpoint Card */}
-        <div className="rounded-2xl border border-sky-100 bg-gradient-to-r from-sky-50/80 via-white to-pink-50/60 p-6 space-y-2 shadow-xs">
+        {/* Inbound Webhook URL Card */}
+        <div className="rounded-2xl border border-sky-100 bg-gradient-to-r from-sky-50 via-white to-pink-50 p-6 space-y-2 shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-sky-800 uppercase tracking-wide">
               Your Webhook URL
             </span>
             <span className="text-[11px] text-slate-500 font-medium">
-              Paste into TradingView or Chartink
+              Paste in TradingView or Chartink
             </span>
           </div>
-          <div className="flex items-center gap-2">
-            <input
-              readOnly
-              value={webhookUrl}
-              className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 font-mono text-xs text-slate-700 select-all outline-none focus:border-sky-300"
-            />
-          </div>
+          <input
+            readOnly
+            value={webhookUrl}
+            className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 font-mono text-xs text-slate-700 select-all outline-none focus:border-sky-300"
+          />
         </div>
 
-        {/* Message Format Card */}
+        {/* Message Format */}
         <div className="rounded-2xl border border-slate-200/80 bg-white p-6 space-y-4 shadow-xs">
           <div className="space-y-1">
             <h2 className="text-sm font-bold text-slate-900">Alert Message Format</h2>
             <p className="text-xs text-slate-500">
-              Customize what gets sent. Use <code className="bg-pink-50 text-pink-700 px-1 py-0.5 rounded font-mono text-[11px]">{`{{payload}}`}</code> to output the incoming alert.
+              Customize your message. Use <code className="bg-pink-50 text-pink-700 px-1.5 py-0.5 rounded font-mono text-[11px]">{`{{payload}}`}</code> to include the received alert data.
             </p>
           </div>
           <form action={handleUpdateTemplate} className="space-y-3">
@@ -206,15 +242,98 @@ export default async function PipelineDetailPage({ params }: PageProps) {
           </form>
         </div>
 
-        {/* Channels Section */}
-        <div className="space-y-4">
-          <h2 className="text-sm font-bold text-slate-900">Where should alerts go?</h2>
+        {/* Channel Integrations */}
+        <div className="space-y-5">
+          <div className="space-y-1">
+            <h2 className="text-base font-bold text-slate-900">Where should alerts go?</h2>
+            <p className="text-xs text-slate-500">Add the accounts and channels you want alerts sent to.</p>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {/* Slack Channel */}
-            <div className="rounded-2xl border border-slate-200/80 bg-white p-5 space-y-3 shadow-xs">
+            {/* Telegram Channel */}
+            <div className="rounded-2xl border border-sky-200/60 bg-white p-5 space-y-3 shadow-xs">
               <div className="flex items-center gap-2">
-                <div className="h-7 w-7 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center">
+                <div className="h-7 w-7 rounded-lg bg-sky-50 text-sky-500 flex items-center justify-center font-bold text-sm">
+                  ✈
+                </div>
+                <h3 className="text-xs font-bold text-slate-900">Telegram Bot</h3>
+              </div>
+              <form action={handleAddTelegram} className="space-y-2">
+                <Input
+                  name="bot_token"
+                  placeholder="Bot Token (e.g. 123456:ABC-DEF12456)"
+                  required
+                  className="rounded-xl text-xs bg-slate-50/50 border-slate-200 font-mono"
+                />
+                <Input
+                  name="chat_id"
+                  placeholder="Chat ID or Channel ID (e.g. -100123456789)"
+                  required
+                  className="rounded-xl text-xs bg-slate-50/50 border-slate-200 font-mono"
+                />
+                <Button
+                  type="submit"
+                  size="sm"
+                  className="w-full rounded-xl bg-sky-500 hover:bg-sky-600 text-white text-xs font-semibold"
+                >
+                  Connect Telegram
+                </Button>
+              </form>
+              {telegramDests.map((d) => (
+                <div key={d.id} className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <span className="font-mono text-slate-600 text-[11px] truncate">
+                    Chat: {d.config?.chat_id}
+                  </span>
+                  <form action={handleDeleteDestination.bind(null, d.id)}>
+                    <Button type="submit" variant="ghost" size="sm" className="h-6 w-6 p-0 text-slate-400 hover:text-rose-500">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </form>
+                </div>
+              ))}
+            </div>
+
+            {/* Discord Channel */}
+            <div className="rounded-2xl border border-indigo-200/60 bg-white p-5 space-y-3 shadow-xs">
+              <div className="flex items-center gap-2">
+                <div className="h-7 w-7 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center font-bold text-sm">
+                  #
+                </div>
+                <h3 className="text-xs font-bold text-slate-900">Discord Channel</h3>
+              </div>
+              <form action={handleAddDiscord} className="space-y-2">
+                <Input
+                  name="webhook_url"
+                  placeholder="Discord Webhook URL (from Channel Integrations)"
+                  required
+                  className="rounded-xl text-xs bg-slate-50/50 border-slate-200 font-mono"
+                />
+                <Button
+                  type="submit"
+                  size="sm"
+                  className="w-full rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-semibold"
+                >
+                  Connect Discord
+                </Button>
+              </form>
+              {discordDests.map((d) => (
+                <div key={d.id} className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <span className="font-mono text-slate-600 text-[11px] truncate">
+                    Discord Webhook Connected
+                  </span>
+                  <form action={handleDeleteDestination.bind(null, d.id)}>
+                    <Button type="submit" variant="ghost" size="sm" className="h-6 w-6 p-0 text-slate-400 hover:text-rose-500">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </form>
+                </div>
+              ))}
+            </div>
+
+            {/* Slack Channel */}
+            <div className="rounded-2xl border border-emerald-200/60 bg-white p-5 space-y-3 shadow-xs">
+              <div className="flex items-center gap-2">
+                <div className="h-7 w-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
                   <Send className="h-4 w-4" />
                 </div>
                 <h3 className="text-xs font-bold text-slate-900">Slack Webhook</h3>
@@ -224,41 +343,56 @@ export default async function PipelineDetailPage({ params }: PageProps) {
                   name="webhook_url"
                   placeholder="https://hooks.slack.com/services/..."
                   required
-                  className="rounded-xl text-xs bg-slate-50/50 border-slate-200"
+                  className="rounded-xl text-xs bg-slate-50/50 border-slate-200 font-mono"
                 />
                 <Button
                   type="submit"
                   size="sm"
-                  className="w-full rounded-xl bg-sky-500 hover:bg-sky-600 text-white text-xs font-semibold"
+                  className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold"
                 >
                   Connect Slack
                 </Button>
               </form>
-              {slackChannels && slackChannels.length > 0 && (
-                <div className="pt-2 border-t border-slate-100 space-y-1">
-                  {slackChannels.map((c) => (
-                    <div key={c.id} className="text-[11px] font-mono text-slate-500 truncate">
-                      ✓ {c.webhook_url}
-                    </div>
-                  ))}
+              {slackDests.map((d) => (
+                <div key={d.id} className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <span className="font-mono text-slate-600 text-[11px] truncate">
+                    Slack Webhook Connected
+                  </span>
+                  <form action={handleDeleteDestination.bind(null, d.id)}>
+                    <Button type="submit" variant="ghost" size="sm" className="h-6 w-6 p-0 text-slate-400 hover:text-rose-500">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </form>
                 </div>
-              )}
+              ))}
             </div>
 
-            {/* Email Alert */}
-            <div className="rounded-2xl border border-slate-200/80 bg-white p-5 space-y-3 shadow-xs">
+            {/* Email (User's Resend Account) */}
+            <div className="rounded-2xl border border-pink-200/60 bg-white p-5 space-y-3 shadow-xs">
               <div className="flex items-center gap-2">
                 <div className="h-7 w-7 rounded-lg bg-pink-50 text-pink-600 flex items-center justify-center">
                   <Mail className="h-4 w-4" />
                 </div>
-                <h3 className="text-xs font-bold text-slate-900">Email Notification</h3>
+                <h3 className="text-xs font-bold text-slate-900">Email (Resend)</h3>
               </div>
               <form action={handleAddEmail} className="space-y-2">
                 <Input
-                  name="email"
-                  type="email"
-                  placeholder="you@domain.com"
+                  name="api_key"
+                  type="password"
+                  placeholder="Your Resend API Key (re_...)"
                   required
+                  className="rounded-xl text-xs bg-slate-50/50 border-slate-200 font-mono"
+                />
+                <Input
+                  name="to"
+                  type="email"
+                  placeholder="Recipient Email (you@domain.com)"
+                  required
+                  className="rounded-xl text-xs bg-slate-50/50 border-slate-200"
+                />
+                <Input
+                  name="subject"
+                  placeholder="Subject line (optional)"
                   className="rounded-xl text-xs bg-slate-50/50 border-slate-200"
                 />
                 <Button
@@ -269,75 +403,57 @@ export default async function PipelineDetailPage({ params }: PageProps) {
                   Connect Email
                 </Button>
               </form>
-              {emailRecipients && emailRecipients.length > 0 && (
-                <div className="pt-2 border-t border-slate-100 space-y-1">
-                  {emailRecipients.map((e) => (
-                    <div key={e.id} className="text-[11px] text-slate-500">
-                      ✓ {e.email}
-                    </div>
-                  ))}
+              {emailDests.map((d) => (
+                <div key={d.id} className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <span className="font-mono text-slate-600 text-[11px] truncate">
+                    To: {d.config?.to}
+                  </span>
+                  <form action={handleDeleteDestination.bind(null, d.id)}>
+                    <Button type="submit" variant="ghost" size="sm" className="h-6 w-6 p-0 text-slate-400 hover:text-rose-500">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </form>
                 </div>
-              )}
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Webhook Forwarding */}
+        {/* Custom Webhook Forwarder */}
         <div className="rounded-2xl border border-slate-200/80 bg-white p-5 space-y-3 shadow-xs">
           <div className="flex items-center gap-2">
             <div className="h-7 w-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
               <Globe className="h-4 w-4" />
             </div>
-            <h3 className="text-xs font-bold text-slate-900">Forward to Another Webhook</h3>
+            <h3 className="text-xs font-bold text-slate-900">Custom Webhook Forwarder</h3>
           </div>
-          <form action={handleAddForwarder} className="space-y-2">
+          <form action={handleAddWebhook} className="space-y-2">
             <Input
-              name="target_url"
+              name="endpoint_url"
               placeholder="https://api.yourdomain.com/v1/webhook"
               required
-              className="rounded-xl text-xs bg-slate-50/50 border-slate-200"
+              className="rounded-xl text-xs bg-slate-50/50 border-slate-200 font-mono"
             />
             <Button
               type="submit"
               size="sm"
               className="rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold px-4"
             >
-              Add Forwarder URL
+              Add Forwarder
             </Button>
           </form>
-          {webhookForwarders && webhookForwarders.length > 0 && (
-            <div className="pt-2 border-t border-slate-100 space-y-1">
-              {webhookForwarders.map((w) => (
-                <div key={w.id} className="text-[11px] font-mono text-slate-500 truncate">
-                  ✓ {w.target_url}
-                </div>
-              ))}
+          {webhookDests.map((d) => (
+            <div key={d.id} className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span className="font-mono text-slate-600 text-[11px] truncate">
+                {d.config?.endpoint_url}
+              </span>
+              <form action={handleDeleteDestination.bind(null, d.id)}>
+                <Button type="submit" variant="ghost" size="sm" className="h-6 w-6 p-0 text-slate-400 hover:text-rose-500">
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </form>
             </div>
-          )}
-        </div>
-
-        {/* Recent Deliveries */}
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-6 space-y-3 shadow-xs">
-          <h2 className="text-sm font-bold text-slate-900">Recent Deliveries</h2>
-          {logs && logs.length > 0 ? (
-            <div className="space-y-2">
-              {logs.map((log) => (
-                <div
-                  key={log.id}
-                  className="rounded-xl bg-slate-50 p-3 text-xs flex items-center justify-between border border-slate-100"
-                >
-                  <span className="font-mono text-slate-600 truncate max-w-md">
-                    {log.raw_payload}
-                  </span>
-                  <span className="text-[11px] text-slate-400">
-                    {new Date(log.created_at).toLocaleTimeString()}
-                  </span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-slate-400">No alert deliveries recorded yet.</p>
-          )}
+          ))}
         </div>
       </div>
     </div>
