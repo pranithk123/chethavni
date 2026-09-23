@@ -33,8 +33,8 @@ export function CreatePipelineDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-emerald-600 hover:bg-emerald-500 text-white font-medium">
-          + New Pipeline
+        <Button className="bg-amber-500 hover:bg-amber-400 text-zinc-950 font-semibold shadow-sm">
+          + Create Alert
         </Button>
       </DialogTrigger>
       <DialogContent className="border-zinc-800 bg-zinc-900 text-zinc-100 sm:max-w-md">
