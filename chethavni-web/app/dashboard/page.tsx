@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { signout } from '../login/actions'
 import { Button } from '@/components/ui/button'
 import { CreatePipelineDialog } from '@/components/CreatePipelineDialog'
+import { EmptyState } from '@/components/ui/empty-state'
 import {
   ArrowRight,
   BellRing,
@@ -175,18 +176,12 @@ export default async function DashboardPage() {
               ))}
             </div>
           ) : (
-            <div className="rounded-xl border border-dashed border-sky-200 bg-white px-6 py-14 text-center">
-              <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-sky-50 text-sky-600 ring-1 ring-sky-100">
-                <BellRing className="h-5 w-5" />
-              </div>
-              <h3 className="mt-4 text-sm font-semibold text-slate-900">No workflows yet</h3>
-              <p className="mx-auto mt-1 max-w-sm text-xs leading-5 text-slate-500">
-                Create a workflow, choose how it receives data, and connect it to one or more apps.
-              </p>
-              <div className="mt-5">
-                <CreatePipelineDialog />
-              </div>
-            </div>
+            <EmptyState
+              icon={BellRing}
+              title="No workflows yet"
+              description="Create a workflow, choose how it receives data, and connect it to one or more apps."
+              action={<CreatePipelineDialog />}
+            />
           )}
         </section>
       </main>

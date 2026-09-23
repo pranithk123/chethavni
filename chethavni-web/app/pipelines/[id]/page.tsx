@@ -4,6 +4,8 @@ import Link from 'next/link'
 import { revalidatePath } from 'next/cache'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { CopyButton } from '@/components/ui/copy-button'
+import { DeleteDestinationButton } from '@/components/DeleteDestinationButton'
 import {
   ArrowLeft,
   Check,
@@ -14,7 +16,6 @@ import {
   MessageCircle,
   Power,
   Send,
-  Trash2,
   Webhook,
   Zap,
 } from 'lucide-react'
@@ -186,13 +187,6 @@ export default async function PipelineDetailPage({ params }: PageProps) {
     revalidatePath(`/pipelines/${id}`)
   }
 
-  async function handleDeleteDestination(destinationId: string) {
-    'use server'
-    const sb = await createClient()
-    await sb.from('destinations').delete().eq('id', destinationId).eq('pipeline_id', id)
-    revalidatePath(`/pipelines/${id}`)
-  }
-
   const configuredKeys = new Set(safeDestinations.map((destination) => destination.channel))
 
   return (
@@ -269,9 +263,7 @@ export default async function PipelineDetailPage({ params }: PageProps) {
               value={webhookUrl}
               className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 font-mono text-[11px] text-slate-700 outline-none focus:border-sky-300 focus:ring-2 focus:ring-sky-50"
             />
-            <span className="inline-flex h-10 items-center rounded-lg bg-slate-50 px-3 text-[11px] font-medium text-slate-500 ring-1 ring-slate-200">
-              Select to copy
-            </span>
+            <CopyButton value={webhookUrl} />
           </div>
 
           <div className="mt-3 flex flex-wrap gap-1.5">
@@ -409,11 +401,11 @@ export default async function PipelineDetailPage({ params }: PageProps) {
                                       ? destination.config?.endpoint_url
                                       : destination.config?.webhook_url}
                               </span>
-                              <form action={handleDeleteDestination.bind(null, destination.id)}>
-                                <Button type="submit" variant="ghost" size="sm" className="h-7 w-7 shrink-0 rounded-md p-0 text-slate-400 hover:bg-rose-50 hover:text-rose-600">
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                </Button>
-                              </form>
+                              <DeleteDestinationButton
+                                destinationId={destination.id}
+                                pipelineId={id}
+                                destinationName={integration.name}
+                              />
                             </div>
                           ))}
                         </div>
