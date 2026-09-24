@@ -12,7 +12,6 @@ import {
   Check,
   ChevronRight,
   Code2,
-  Globe2,
   Power,
   Webhook,
   Zap,
@@ -51,7 +50,7 @@ const integrations = [
     key: 'webhook',
     name: 'HTTP Request',
     description: 'Call any API or webhook endpoint.',
-    icon: Globe2,
+    iconSrc: '/icons/http.svg',
   },
 ]
 
@@ -309,17 +308,13 @@ export default async function PipelineDetailPage({ params }: PageProps) {
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
                     <div className="flex min-w-0 items-start gap-3 lg:w-64">
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center">
-                        {'iconSrc' in integration && integration.iconSrc ? (
-                          <Image
-                            src={integration.iconSrc}
-                            alt={`${integration.name} icon`}
-                            width={24}
-                            height={24}
-                            className={`object-contain ${integration.key === 'discord' ? 'h-8 w-8' : integration.key === 'telegram' || integration.key === 'slack' ? 'h-6 w-6' : 'h-5 w-5'}`}
-                          />
-                        ) : (
-                          <Globe2 className="h-4 w-4" />
-                        )}
+                        <Image
+                          src={integration.iconSrc}
+                          alt={`${integration.name} icon`}
+                          width={24}
+                          height={24}
+                          className={`object-contain ${integration.key === 'discord' ? 'h-8 w-8' : integration.key === 'telegram' || integration.key === 'slack' ? 'h-6 w-6' : 'h-5 w-5'}`}
+                        />
                       </div>
                       <div>
                         <h3 className="text-sm font-semibold text-slate-900">{integration.name}</h3>
