@@ -94,14 +94,14 @@ export default async function DashboardPage() {
 
           <div className="grid border-t border-cyan-200/70 sm:grid-cols-3">
             <div className="flex items-center gap-3 px-6 py-4 sm:border-r sm:border-cyan-200/70">
-              <Image src="/icons/receive.svg" alt="" width={20} height={20} className="h-5 w-5 object-contain" />
+              <Image src="/icons/receive.svg" alt="" width={28} height={28} className="h-7 w-7 object-contain" />
               <div>
                 <p className="text-xs font-semibold text-slate-800">Receive</p>
                 <p className="text-[11px] text-slate-500">Webhooks & events</p>
               </div>
             </div>
             <div className="flex items-center gap-3 px-6 py-4 sm:border-r sm:border-cyan-200/70">
-              <Image src="/icons/process.svg" alt="" width={20} height={20} className="h-5 w-5 object-contain" />
+              <Image src="/icons/process.svg" alt="" width={28} height={28} className="h-7 w-7 object-contain" />
               <div>
                 <p className="text-xs font-semibold text-slate-800">Process</p>
                 <p className="text-[11px] text-slate-500">Map & transform data</p>
