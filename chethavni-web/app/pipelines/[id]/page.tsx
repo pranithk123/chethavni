@@ -28,45 +28,32 @@ const integrations = [
     name: 'Telegram',
     description: 'Send a message to a chat or channel.',
     iconSrc: '/icons/telegram.svg',
-    tone: 'sky',
   },
   {
     key: 'discord',
     name: 'Discord',
     description: 'Post a notification through a webhook.',
     iconSrc: '/icons/discord.svg',
-    tone: 'violet',
   },
   {
     key: 'slack',
     name: 'Slack',
     description: 'Send messages to a Slack channel.',
     iconSrc: '/icons/slack.svg',
-    tone: 'indigo',
   },
   {
     key: 'email',
     name: 'Email',
     description: 'Send an email using your Resend account.',
     iconSrc: '/icons/email.svg',
-    tone: 'sky',
   },
   {
     key: 'webhook',
     name: 'HTTP Request',
     description: 'Call any API or webhook endpoint.',
     icon: Globe2,
-    tone: 'violet',
   },
 ]
-
-function toneClasses(tone: string) {
-  return {
-    sky: 'bg-cyan-100 text-cyan-700 ring-cyan-200',
-    violet: 'bg-fuchsia-100 text-fuchsia-700 ring-fuchsia-200',
-    indigo: 'bg-orange-100 text-orange-700 ring-orange-200',
-  }[tone] || 'bg-amber-100 text-amber-700 ring-amber-200'
-}
 
 export default async function PipelineDetailPage({ params }: PageProps) {
   const { id } = await params
@@ -321,7 +308,7 @@ export default async function PipelineDetailPage({ params }: PageProps) {
                 <div key={integration.key} className="rounded-xl border border-slate-200 bg-white p-5 shadow-[0_8px_24px_rgba(30,41,59,0.06)]">
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
                     <div className="flex min-w-0 items-start gap-3 lg:w-64">
-                      <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ring-1 ${toneClasses(integration.tone)}`}>
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center">
                         {'iconSrc' in integration && integration.iconSrc ? (
                           <Image src={integration.iconSrc} alt={`${integration.name} icon`} width={20} height={20} className="h-5 w-5 object-contain" />
                         ) : (
