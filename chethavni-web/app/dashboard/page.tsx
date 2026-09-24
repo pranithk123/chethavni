@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { signout } from '../login/actions'
 import { Button } from '@/components/ui/button'
 import { CreatePipelineDialog } from '@/components/CreatePipelineDialog'
@@ -141,8 +142,14 @@ export default async function DashboardPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-cyan-100 text-cyan-700">
-                          <GitBranch className="h-4 w-4" />
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center">
+                          <Image
+                            src="/icons/workflow.svg"
+                            alt=""
+                            width={24}
+                            height={24}
+                            className="h-6 w-6 object-contain"
+                          />
                         </div>
                         <h3 className="truncate text-sm font-semibold text-indigo-950 group-hover:text-indigo-600">
                           {workflow.name}
