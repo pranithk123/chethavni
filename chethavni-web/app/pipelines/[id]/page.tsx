@@ -315,7 +315,7 @@ export default async function PipelineDetailPage({ params }: PageProps) {
                             alt={`${integration.name} icon`}
                             width={24}
                             height={24}
-                            className={`object-contain ${integration.key === 'discord' ? 'h-8 w-8' : integration.key === 'slack' ? 'h-6 w-6' : 'h-5 w-5'}`}
+                            className={`object-contain ${integration.key === 'discord' ? 'h-8 w-8' : integration.key === 'telegram' || integration.key === 'slack' ? 'h-6 w-6' : 'h-5 w-5'}`}
                           />
                         ) : (
                           <Globe2 className="h-4 w-4" />
