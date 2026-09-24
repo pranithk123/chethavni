@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { revalidatePath } from 'next/cache'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,10 +13,7 @@ import {
   ChevronRight,
   Code2,
   Globe2,
-  Mail,
-  MessageCircle,
   Power,
-  Send,
   Webhook,
   Zap,
 } from 'lucide-react'
@@ -29,28 +27,28 @@ const integrations = [
     key: 'telegram',
     name: 'Telegram',
     description: 'Send a message to a chat or channel.',
-    icon: Send,
+    iconSrc: '/icons/telegram.svg',
     tone: 'sky',
   },
   {
     key: 'discord',
     name: 'Discord',
     description: 'Post a notification through a webhook.',
-    icon: MessageCircle,
+    iconSrc: '/icons/discord.svg',
     tone: 'violet',
   },
   {
     key: 'slack',
     name: 'Slack',
     description: 'Send messages to a Slack channel.',
-    icon: MessageCircle,
+    iconSrc: '/icons/slack.svg',
     tone: 'indigo',
   },
   {
     key: 'email',
     name: 'Email',
     description: 'Send an email using your Resend account.',
-    icon: Mail,
+    iconSrc: '/icons/email.svg',
     tone: 'sky',
   },
   {
@@ -191,7 +189,7 @@ export default async function PipelineDetailPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen pb-20 text-slate-800">
-      <header className="sticky top-0 z-30 border-b border-amber-200/80 bg-[#fffdf2]/90 backdrop-blur">
+      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-5 sm:px-7">
           <Link
             href="/dashboard"
@@ -239,7 +237,7 @@ export default async function PipelineDetailPage({ params }: PageProps) {
           </div>
         </section>
 
-        <section className="rounded-xl border border-cyan-200 bg-cyan-50/70 p-5 shadow-[0_12px_35px_rgba(8,145,178,0.08)] sm:p-6">
+        <section className="rounded-xl border border-cyan-200 bg-white p-5 shadow-[0_12px_35px_rgba(8,145,178,0.08)] sm:p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <div className="flex items-center gap-2">
@@ -261,21 +259,21 @@ export default async function PipelineDetailPage({ params }: PageProps) {
             <input
               readOnly
               value={webhookUrl}
-              className="min-w-0 flex-1 rounded-lg border border-cyan-200 bg-white/80 px-3 py-2.5 font-mono text-[11px] text-slate-700 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
+              className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2.5 font-mono text-[11px] text-slate-700 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
             />
             <CopyButton value={webhookUrl} />
           </div>
 
           <div className="mt-3 flex flex-wrap gap-1.5">
             {['Chartink', 'TradingView', 'Custom webhook', 'Pabbly / Zapier'].map((source) => (
-              <span key={source} className="rounded-md bg-white/80 px-2 py-1 text-[10px] font-medium text-cyan-800 ring-1 ring-cyan-200">
+              <span key={source} className="rounded-md bg-cyan-50 px-2 py-1 text-[10px] font-medium text-cyan-800 ring-1 ring-cyan-200">
                 {source}
               </span>
             ))}
           </div>
         </section>
 
-        <section className="rounded-xl border border-fuchsia-200 bg-fuchsia-50/55 p-5 sm:p-6">
+        <section className="rounded-xl border border-fuchsia-200 bg-white p-5 sm:p-6">
           <div className="flex items-start gap-3">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-fuchsia-100 text-fuchsia-700 ring-1 ring-fuchsia-200">
               <Code2 className="h-4 w-4" />
@@ -293,7 +291,7 @@ export default async function PipelineDetailPage({ params }: PageProps) {
               name="template"
               rows={4}
               defaultValue={pipeline.message_template || 'Alert: {{payload}}'}
-              className="w-full resize-y rounded-lg border border-fuchsia-200 bg-white/75 p-3 font-mono text-xs leading-5 text-slate-700 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
+              className="w-full resize-y rounded-lg border border-slate-200 bg-white p-3 font-mono text-xs leading-5 text-slate-700 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
             />
             <Button type="submit" size="sm" className="h-8 rounded-lg bg-indigo-600 px-3 text-xs font-semibold text-white shadow-sm hover:bg-indigo-700">
               Save format
@@ -316,16 +314,19 @@ export default async function PipelineDetailPage({ params }: PageProps) {
 
           <div className="space-y-3">
             {integrations.map((integration) => {
-              const Icon = integration.icon
               const connected = configuredKeys.has(integration.key)
               const current = safeDestinations.filter((destination) => destination.channel === integration.key)
 
               return (
-                <div key={integration.key} className="rounded-xl border border-amber-200 bg-white/90 p-5 shadow-[0_8px_24px_rgba(120,75,0,0.04)]">
+                <div key={integration.key} className="rounded-xl border border-slate-200 bg-white p-5 shadow-[0_8px_24px_rgba(30,41,59,0.06)]">
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
                     <div className="flex min-w-0 items-start gap-3 lg:w-64">
                       <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ring-1 ${toneClasses(integration.tone)}`}>
-                        <Icon className="h-4 w-4" />
+                        {'iconSrc' in integration && integration.iconSrc ? (
+                          <Image src={integration.iconSrc} alt={`${integration.name} icon`} width={20} height={20} className="h-5 w-5 object-contain" />
+                        ) : (
+                          <Globe2 className="h-4 w-4" />
+                        )}
                       </div>
                       <div>
                         <h3 className="text-sm font-semibold text-slate-900">{integration.name}</h3>
@@ -391,7 +392,7 @@ export default async function PipelineDetailPage({ params }: PageProps) {
                       {current.length > 0 && (
                         <div className="mt-3 space-y-1.5">
                           {current.map((destination) => (
-                            <div key={destination.id} className="flex items-center justify-between gap-3 rounded-lg bg-amber-50 px-3 py-2 ring-1 ring-amber-100">
+                            <div key={destination.id} className="flex items-center justify-between gap-3 rounded-lg bg-slate-50 px-3 py-2 ring-1 ring-slate-100">
                               <span className="truncate font-mono text-[10px] text-slate-500">
                                 {destination.channel === 'telegram'
                                   ? `Chat: ${destination.config?.chat_id}`

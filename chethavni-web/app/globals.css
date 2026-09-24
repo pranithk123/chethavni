@@ -47,7 +47,7 @@
 }
 
 :root {
-  --background: oklch(0.97 0.025 95);
+  --background: oklch(1 0 0);
   --foreground: oklch(0.22 0.04 265);
   --card: oklch(0.995 0.008 95);
   --card-foreground: oklch(0.22 0.04 265);
@@ -66,7 +66,7 @@
   --input: oklch(0.86 0.055 95);
   --ring: oklch(0.7 0.18 265);
   --radius: 0.75rem;
-  --sidebar: oklch(0.97 0.025 95);
+  --sidebar: oklch(1 0 0);
   --sidebar-foreground: oklch(0.22 0.04 265);
   --sidebar-primary: oklch(0.62 0.2 265);
   --sidebar-primary-foreground: oklch(1 0 0);
@@ -83,6 +83,6 @@
 
 @layer base {
   * { @apply border-border outline-ring/50; }
-  body { @apply bg-background text-foreground; background-image: radial-gradient(circle at 8% 8%, oklch(0.92 0.12 185 / 0.7), transparent 26rem), radial-gradient(circle at 92% 12%, oklch(0.92 0.12 85 / 0.6), transparent 24rem); }
+  body { @apply bg-background text-foreground; }
   html { @apply font-sans; }
 }

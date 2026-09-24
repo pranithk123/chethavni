@@ -43,7 +43,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen text-slate-800">
-      <header className="sticky top-0 z-40 border-b border-amber-200/80 bg-[#fffdf2]/90 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-7">
           <Link href="/dashboard" className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-[0_6px_16px_rgba(79,70,229,0.25)]">
@@ -68,11 +68,8 @@ export default async function DashboardPage() {
       </header>
 
       <main className="mx-auto max-w-6xl space-y-9 px-5 py-8 sm:px-7 sm:py-10">
-        <section className="overflow-hidden rounded-2xl border border-cyan-200 bg-gradient-to-br from-cyan-100 via-white to-amber-100 shadow-[0_16px_45px_rgba(29,78,216,0.08)]">
+        <section className="overflow-hidden rounded-2xl border border-cyan-200 bg-white shadow-[0_12px_35px_rgba(30,41,59,0.08)]">
           <div className="relative px-6 py-7 sm:px-8 sm:py-9">
-            <div className="pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full bg-cyan-300/45 blur-3xl" />
-            <div className="pointer-events-none absolute right-24 -bottom-28 h-56 w-56 rounded-full bg-fuchsia-300/35 blur-3xl" />
-
             <div className="relative max-w-2xl">
               <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-indigo-100 px-2.5 py-1 text-[11px] font-semibold text-indigo-800 ring-1 ring-indigo-200">
                 <CircleDot className="h-3 w-3" />
@@ -88,7 +85,7 @@ export default async function DashboardPage() {
 
               <div className="mt-6 flex flex-wrap items-center gap-2.5">
                 <CreatePipelineDialog />
-                <span className="inline-flex items-center gap-1.5 rounded-lg bg-white/80 px-3 py-2 text-xs font-medium text-slate-600 ring-1 ring-cyan-200">
+                <span className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-2 text-xs font-medium text-slate-600 ring-1 ring-cyan-200">
                   <CheckCircle2 className="h-3.5 w-3.5 text-lime-600" />
                   {activeCount} active workflow{activeCount === 1 ? '' : 's'}
                 </span>
@@ -139,7 +136,7 @@ export default async function DashboardPage() {
                 <Link
                   key={workflow.id}
                   href={`/pipelines/${workflow.id}`}
-                  className="group rounded-xl border border-amber-200 bg-white/90 p-5 transition hover:-translate-y-0.5 hover:border-cyan-300 hover:shadow-[0_12px_30px_rgba(8,145,178,0.12)]"
+                  className="group rounded-xl border border-slate-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-cyan-300 hover:shadow-[0_12px_30px_rgba(8,145,178,0.12)]"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0">

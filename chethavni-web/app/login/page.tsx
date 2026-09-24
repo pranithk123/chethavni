@@ -13,10 +13,8 @@ export default async function LoginPage({
   const params = await searchParams
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#fff8dc] p-4 text-slate-900">
-      <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-cyan-300/70 blur-2xl" />
-      <div className="pointer-events-none absolute -bottom-32 -right-16 h-96 w-96 rounded-full bg-fuchsia-300/50 blur-3xl" />
-      <Card className="relative w-full max-w-md border-amber-200 bg-white/95 shadow-[0_24px_70px_rgba(93,65,20,0.14)]">
+    <div className="flex min-h-screen items-center justify-center bg-white p-4 text-slate-900">
+      <Card className="w-full max-w-md border-slate-200 bg-white shadow-[0_18px_50px_rgba(30,41,59,0.1)]">
         <CardHeader className="space-y-4 pb-5">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-[0_10px_24px_rgba(79,70,229,0.3)]">
             <GitBranch className="h-7 w-7" />
@@ -44,7 +42,7 @@ export default async function LoginPage({
                 type="email"
                 placeholder="trader@chethavni.com"
                 required
-                className="h-10 border-amber-200 bg-amber-50/50 text-slate-900 placeholder:text-slate-400 focus-visible:border-indigo-400 focus-visible:ring-indigo-200"
+                className="h-10 border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus-visible:border-indigo-400 focus-visible:ring-indigo-200"
               />
             </div>
             <div className="space-y-2">
@@ -54,7 +52,7 @@ export default async function LoginPage({
                 name="password"
                 type="password"
                 required
-                className="h-10 border-amber-200 bg-amber-50/50 text-slate-900 placeholder:text-slate-400 focus-visible:border-indigo-400 focus-visible:ring-indigo-200"
+                className="h-10 border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus-visible:border-indigo-400 focus-visible:ring-indigo-200"
               />
             </div>
 
