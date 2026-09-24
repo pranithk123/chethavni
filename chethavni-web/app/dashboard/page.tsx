@@ -6,6 +6,7 @@ import { signout } from '../login/actions'
 import { Button } from '@/components/ui/button'
 import { CreatePipelineDialog } from '@/components/CreatePipelineDialog'
 import { EmptyState } from '@/components/ui/empty-state'
+import { getPlanSnapshot, planLabel } from '@/lib/plan-limits'
 import {
   ArrowRight,
   BellRing,
@@ -25,12 +26,6 @@ export default async function DashboardPage() {
 
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user.id)
-    .maybeSingle()
-
   const { data: pipelines } = await supabase
     .from('pipelines')
     .select('*')
@@ -39,6 +34,11 @@ export default async function DashboardPage() {
 
   const workflows = pipelines ?? []
   const activeCount = workflows.filter((pipeline) => pipeline.is_active).length
+  const planSnapshot = await getPlanSnapshot(supabase, user.id)
+  const usagePercent = Math.min(
+    100,
+    Math.round((planSnapshot.executionCount / planSnapshot.limits.executionLimit) * 100)
+  )
 
   return (
     <div className="min-h-screen text-slate-800">
@@ -50,9 +50,15 @@ export default async function DashboardPage() {
             </div>
             <span className="text-[17px] font-bold tracking-tight text-indigo-950">Chethavni</span>
             <span className="hidden rounded-full bg-lime-100 px-2 py-0.5 text-[10px] font-semibold text-lime-800 ring-1 ring-lime-200 sm:inline-flex">
-              {profile?.tier || 'Free'}
+              {planLabel(planSnapshot.plan)}
             </span>
           </Link>
+
+          <nav className="hidden items-center gap-4 text-xs font-semibold text-slate-500 md:flex">
+            <Link href="/dashboard" className="text-indigo-700">Workflows</Link>
+            <Link href="/pricing" className="transition hover:text-indigo-700">Pricing</Link>
+            <Link href="/profile" className="transition hover:text-indigo-700">Profile</Link>
+          </nav>
 
           <div className="flex items-center gap-2.5">
             <span className="hidden text-xs text-slate-500 md:block">{user.email}</span>
@@ -115,6 +121,35 @@ export default async function DashboardPage() {
               </div>
             </div>
           </div>
+        </section>
+
+        <section className="grid gap-3 sm:grid-cols-3">
+          <Link href="/profile" className="rounded-xl border border-indigo-200 bg-white p-4 transition hover:border-indigo-300 hover:shadow-sm">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-indigo-600">Plan</p>
+            <p className="mt-2 text-lg font-bold text-indigo-950">{planLabel(planSnapshot.plan)}</p>
+            <p className="mt-1 text-xs text-slate-500">
+              {planSnapshot.plan === 'free' ? '100 executions per day' : `₹${planSnapshot.limits.price} / month`}
+            </p>
+          </Link>
+          <Link href="/profile" className="rounded-xl border border-cyan-200 bg-white p-4 transition hover:border-cyan-300 hover:shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-cyan-700">Usage</p>
+              <span className="text-[11px] font-semibold text-slate-500">{usagePercent}%</span>
+            </div>
+            <p className="mt-2 text-lg font-bold text-indigo-950">
+              {planSnapshot.executionCount.toLocaleString()} / {planSnapshot.limits.executionLimit.toLocaleString()}
+            </p>
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-cyan-100">
+              <div className="h-full rounded-full bg-cyan-500" style={{ width: `${usagePercent}%` }} />
+            </div>
+          </Link>
+          <Link href="/profile" className="rounded-xl border border-fuchsia-200 bg-white p-4 transition hover:border-fuchsia-300 hover:shadow-sm">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-fuchsia-700">Workflows</p>
+            <p className="mt-2 text-lg font-bold text-indigo-950">
+              {workflows.length} / {planSnapshot.limits.workflowLimit}
+            </p>
+            <p className="mt-1 text-xs text-slate-500">Configured automations</p>
+          </Link>
         </section>
 
         <section>

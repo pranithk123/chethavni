@@ -29,7 +29,7 @@ export function CreatePipelineDialog() {
       showToast('success', 'Workflow created successfully')
       setOpen(false)
     } catch (error) {
-      showToast('error', 'Failed to create workflow')
+      showToast('error', error instanceof Error ? error.message : 'Failed to create workflow')
       console.error(error)
     } finally {
       setLoading(false)

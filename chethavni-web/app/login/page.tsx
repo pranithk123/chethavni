@@ -8,7 +8,7 @@ import { ArrowRight, GitBranch, LockKeyhole, Sparkles } from 'lucide-react'
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>
+  searchParams: Promise<{ error?: string; message?: string }>
 }) {
   const params = await searchParams
 
@@ -27,9 +27,9 @@ export default async function LoginPage({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {params.error && (
+          {(params.error || params.message) && (
             <div className="mb-4 rounded-lg border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
-              {params.error}
+              {params.error || params.message}
             </div>
           )}
 

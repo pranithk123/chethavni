@@ -36,15 +36,20 @@ type Profile struct {
 	PlanTier string `json:"plan_tier"`
 }
 
+type QuotaResult struct {
+	Allowed      bool   `json:"allowed"`
+	CurrentCount int    `json:"current_count"`
+	MonthlyLimit int    `json:"monthly_limit"`
+	DailyCount   int    `json:"daily_count"`
+	DailyLimit   int    `json:"daily_limit"`
+	PlanTier     string `json:"plan_tier"`
+	Reason       string `json:"reason"`
+}
+
 var (
 	supabaseURL string
 	supabaseKey string
 	httpClient  = &http.Client{Timeout: 10 * time.Second}
-	tierLimits  = map[string]int{
-		"free":  100,
-		"pro":   10000,
-		"scale": 100000,
-	}
 )
 
 func main() {
@@ -109,52 +114,33 @@ func handleWebhook(c *gin.Context) {
 		return
 	}
 
-	// 2. Plan Tier and Daily Quota Check
-	profURL := fmt.Sprintf("%s/rest/v1/profiles?id=eq.%s&select=plan_tier", supabaseURL, pipeline.UserID)
-	profReq, _ := http.NewRequest("GET", profURL, nil)
-	profReq.Header.Set("apikey", supabaseKey)
-	profReq.Header.Set("Authorization", "Bearer "+supabaseKey)
-
-	var profiles []Profile
-	if pResp, err := httpClient.Do(profReq); err == nil {
-		defer pResp.Body.Close()
-		pBody, _ := io.ReadAll(pResp.Body)
-		_ = json.Unmarshal(pBody, &profiles)
+	// 2. Atomically reserve quota before any destination dispatch.
+	quota, err := consumeExecution(pipeline.UserID)
+	if err != nil {
+		log.Printf("quota check failed for user %s: %v", pipeline.UserID, err)
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "Quota service unavailable; event was not processed"})
+		return
 	}
-
-	userTier := "free"
-	if len(profiles) > 0 && profiles[0].PlanTier != "" {
-		userTier = strings.ToLower(profiles[0].PlanTier)
-	}
-
-	limit := tierLimits[userTier]
-	if limit == 0 {
-		limit = 100
-	}
-
-	today := time.Now().UTC().Format("2006-01-02")
-	usageURL := fmt.Sprintf("%s/rest/v1/daily_usage?user_id=eq.%s&usage_date=eq.%s&select=request_count", supabaseURL, pipeline.UserID, today)
-	usageReq, _ := http.NewRequest("GET", usageURL, nil)
-	usageReq.Header.Set("apikey", supabaseKey)
-	usageReq.Header.Set("Authorization", "Bearer "+supabaseKey)
-
-	var usageRecords []map[string]interface{}
-	if uResp, err := httpClient.Do(usageReq); err == nil {
-		defer uResp.Body.Close()
-		uBody, _ := io.ReadAll(uResp.Body)
-		_ = json.Unmarshal(uBody, &usageRecords)
-	}
-
-	if len(usageRecords) > 0 {
-		if countVal, ok := usageRecords[0]["request_count"].(float64); ok && int(countVal) >= limit {
-			c.JSON(http.StatusTooManyRequests, gin.H{
-				"error":       "Daily quota exceeded",
-				"limit":       limit,
-				"current":     int(countVal),
-				"upgrade_url": "https://chethavni.com/pricing",
-			})
-			return
+	if !quota.Allowed {
+		message := "Execution quota exceeded"
+		if quota.Reason == "daily_safety_limit" {
+			message = "Daily safety limit reached; check your workflow configuration"
+		} else if quota.Reason == "daily_limit" {
+			message = "Free plan execution limit reached for today"
+		} else if quota.Reason == "monthly_limit" {
+			message = "Monthly execution limit reached"
 		}
+		c.JSON(http.StatusTooManyRequests, gin.H{
+			"error":         message,
+			"plan_tier":     quota.PlanTier,
+			"current":       quota.CurrentCount,
+			"monthly_limit": quota.MonthlyLimit,
+			"daily":         quota.DailyCount,
+			"daily_limit":   quota.DailyLimit,
+			"reason":        quota.Reason,
+			"upgrade_url":   "/pricing",
+		})
+		return
 	}
 
 	renderedMsg := renderTemplate(pipeline.MessageTemplate, rawPayload)
@@ -197,20 +183,20 @@ func handleWebhook(c *gin.Context) {
 					dispatchErr = sendSlackAlert(slackWebhook, msg)
 				}
 			case "email":
-    apiKey, _ := dest.Config["api_key"].(string)
-    to, _ := dest.Config["to"].(string)
-    subject, _ := dest.Config["subject"].(string)
-    log.Printf("📧 Resend attempt: apiKey_set=%t, to=%s", apiKey != "", to)
-    if apiKey != "" && to != "" {
-        if err := sendResendEmail(apiKey, to, subject, msg); err != nil {
-            log.Printf("❌ Resend Delivery Error: %v", err)
-            status = "partial_failure"
-        } else {
-            log.Printf("✅ Email successfully sent via Resend to %s", to)
-        }
-    } else {
-        log.Printf("⚠️ Email skipped: apiKey or to is missing in config")
-    }
+				apiKey, _ := dest.Config["api_key"].(string)
+				to, _ := dest.Config["to"].(string)
+				subject, _ := dest.Config["subject"].(string)
+				log.Printf("📧 Resend attempt: apiKey_set=%t, to=%s", apiKey != "", to)
+				if apiKey != "" && to != "" {
+					if err := sendResendEmail(apiKey, to, subject, msg); err != nil {
+						log.Printf("❌ Resend Delivery Error: %v", err)
+						status = "partial_failure"
+					} else {
+						log.Printf("✅ Email successfully sent via Resend to %s", to)
+					}
+				} else {
+					log.Printf("⚠️ Email skipped: apiKey or to is missing in config")
+				}
 			case "webhook":
 				endpoint, _ := dest.Config["endpoint_url"].(string)
 				secret, _ := dest.Config["secret"].(string)
@@ -228,14 +214,6 @@ func handleWebhook(c *gin.Context) {
 		}
 
 		duration := int(time.Since(startTime).Milliseconds())
-
-		// Increment daily usage count
-		rpcBody, _ := json.Marshal(map[string]string{"p_user_id": uID})
-		rpcReq, _ := http.NewRequest("POST", supabaseURL+"/rest/v1/rpc/increment_user_usage", bytes.NewBuffer(rpcBody))
-		rpcReq.Header.Set("apikey", supabaseKey)
-		rpcReq.Header.Set("Authorization", "Bearer "+supabaseKey)
-		rpcReq.Header.Set("Content-Type", "application/json")
-		_, _ = httpClient.Do(rpcReq)
 
 		// Record Execution Log
 		logEntry := map[string]interface{}{
@@ -261,6 +239,40 @@ func handleWebhook(c *gin.Context) {
 		"pipeline_id": pipeline.ID,
 		"latency_ms":  time.Since(start).Milliseconds(),
 	})
+}
+
+func consumeExecution(userID string) (QuotaResult, error) {
+	rpcBody, err := json.Marshal(map[string]string{"p_user_id": userID})
+	if err != nil {
+		return QuotaResult{}, err
+	}
+
+	req, err := http.NewRequest("POST", supabaseURL+"/rest/v1/rpc/consume_execution", bytes.NewBuffer(rpcBody))
+	if err != nil {
+		return QuotaResult{}, err
+	}
+	req.Header.Set("apikey", supabaseKey)
+	req.Header.Set("Authorization", "Bearer "+supabaseKey)
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		return QuotaResult{}, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode >= http.StatusBadRequest {
+		body, _ := io.ReadAll(resp.Body)
+		return QuotaResult{}, fmt.Errorf("quota RPC status %d: %s", resp.StatusCode, string(body))
+	}
+
+	var results []QuotaResult
+	if err := json.NewDecoder(resp.Body).Decode(&results); err != nil {
+		return QuotaResult{}, err
+	}
+	if len(results) == 0 {
+		return QuotaResult{}, fmt.Errorf("quota RPC returned no result")
+	}
+	return results[0], nil
 }
 
 func renderTemplate(tmpl string, payload map[string]interface{}) string {

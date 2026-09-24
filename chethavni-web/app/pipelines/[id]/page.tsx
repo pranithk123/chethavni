@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CopyButton } from '@/components/ui/copy-button'
 import { DeleteDestinationButton } from '@/components/DeleteDestinationButton'
+import { assertCanAddDestination, assertPipelineOwner } from '@/lib/plan-limits'
 import {
   ArrowLeft,
   Check,
@@ -88,6 +89,9 @@ export default async function PipelineDetailPage({ params }: PageProps) {
   async function toggleStatus() {
     'use server'
     const sb = await createClient()
+    const { data: { user: currentUser } } = await sb.auth.getUser()
+    if (!currentUser) redirect('/login')
+    await assertPipelineOwner(sb, id, currentUser.id)
     await sb.from('pipelines').update({ is_active: !pipeline.is_active }).eq('id', id)
     revalidatePath(`/pipelines/${id}`)
     revalidatePath('/dashboard')
@@ -97,6 +101,9 @@ export default async function PipelineDetailPage({ params }: PageProps) {
     'use server'
     const template = formData.get('template') as string
     const sb = await createClient()
+    const { data: { user: currentUser } } = await sb.auth.getUser()
+    if (!currentUser) redirect('/login')
+    await assertPipelineOwner(sb, id, currentUser.id)
     await sb.from('pipelines').update({ message_template: template }).eq('id', id)
     revalidatePath(`/pipelines/${id}`)
   }
@@ -104,6 +111,9 @@ export default async function PipelineDetailPage({ params }: PageProps) {
   async function handleAddTelegram(formData: FormData) {
     'use server'
     const sb = await createClient()
+    const { data: { user: currentUser } } = await sb.auth.getUser()
+    if (!currentUser) redirect('/login')
+    await assertCanAddDestination(sb, id, currentUser.id)
     await sb.from('destinations').insert({
       pipeline_id: id,
       channel: 'telegram',
@@ -119,6 +129,9 @@ export default async function PipelineDetailPage({ params }: PageProps) {
   async function handleAddDiscord(formData: FormData) {
     'use server'
     const sb = await createClient()
+    const { data: { user: currentUser } } = await sb.auth.getUser()
+    if (!currentUser) redirect('/login')
+    await assertCanAddDestination(sb, id, currentUser.id)
     await sb.from('destinations').insert({
       pipeline_id: id,
       channel: 'discord',
@@ -131,6 +144,9 @@ export default async function PipelineDetailPage({ params }: PageProps) {
   async function handleAddSlack(formData: FormData) {
     'use server'
     const sb = await createClient()
+    const { data: { user: currentUser } } = await sb.auth.getUser()
+    if (!currentUser) redirect('/login')
+    await assertCanAddDestination(sb, id, currentUser.id)
     await sb.from('destinations').insert({
       pipeline_id: id,
       channel: 'slack',
@@ -143,6 +159,9 @@ export default async function PipelineDetailPage({ params }: PageProps) {
   async function handleAddEmail(formData: FormData) {
     'use server'
     const sb = await createClient()
+    const { data: { user: currentUser } } = await sb.auth.getUser()
+    if (!currentUser) redirect('/login')
+    await assertCanAddDestination(sb, id, currentUser.id)
     await sb.from('destinations').insert({
       pipeline_id: id,
       channel: 'email',
@@ -159,6 +178,9 @@ export default async function PipelineDetailPage({ params }: PageProps) {
   async function handleAddWebhook(formData: FormData) {
     'use server'
     const sb = await createClient()
+    const { data: { user: currentUser } } = await sb.auth.getUser()
+    if (!currentUser) redirect('/login')
+    await assertCanAddDestination(sb, id, currentUser.id)
     await sb.from('destinations').insert({
       pipeline_id: id,
       channel: 'webhook',

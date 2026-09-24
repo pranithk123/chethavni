@@ -9,13 +9,18 @@ export async function login(formData: FormData) {
   const password = formData.get("password") as string;
   const supabase = await createClient();
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
 
   if (error) {
     redirect(`/login?message=${encodeURIComponent(error.message)}`);
+  }
+
+  if (!data.user.email_confirmed_at) {
+    await supabase.auth.signOut()
+    redirect(`/login?message=${encodeURIComponent('Please verify your email before signing in.')}`)
   }
 
   revalidatePath("/", "layout");
@@ -27,13 +32,17 @@ export async function signup(formData: FormData) {
   const password = formData.get("password") as string;
   const supabase = await createClient();
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
   });
 
   if (error) {
     redirect(`/login?message=${encodeURIComponent(error.message)}`);
+  }
+
+  if (!data.session) {
+    redirect(`/login?message=${encodeURIComponent('Check your email to verify your account before signing in.')}`)
   }
 
   revalidatePath("/", "layout");

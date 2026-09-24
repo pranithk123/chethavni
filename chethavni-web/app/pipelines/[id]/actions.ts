@@ -2,9 +2,27 @@
 
 import { createClient } from '../../../lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { redirect } from 'next/navigation'
+import { assertCanAddDestination, assertPipelineOwner } from '../../../lib/plan-limits'
+
+async function getAuthorizedClient(pipelineId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+  await assertCanAddDestination(supabase, pipelineId, user.id)
+  return supabase
+}
+
+async function getOwnedClient(pipelineId: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+  await assertPipelineOwner(supabase, pipelineId, user.id)
+  return supabase
+}
 
 export async function updateMessageTemplate(pipelineId: string, formData: FormData) {
-  const supabase = await createClient()
+  const supabase = await getOwnedClient(pipelineId)
   const messageTemplate = formData.get('message_template') as string
 
   const { error } = await supabase
@@ -17,7 +35,7 @@ export async function updateMessageTemplate(pipelineId: string, formData: FormDa
 }
 
 export async function addDiscordDestination(pipelineId: string, formData: FormData) {
-  const supabase = await createClient()
+  const supabase = await getAuthorizedClient(pipelineId)
   const webhookUrl = formData.get('webhook_url') as string
 
   const { error } = await supabase.from('destinations').insert({
@@ -32,7 +50,7 @@ export async function addDiscordDestination(pipelineId: string, formData: FormDa
 }
 
 export async function addTelegramDestination(pipelineId: string, formData: FormData) {
-  const supabase = await createClient()
+  const supabase = await getAuthorizedClient(pipelineId)
   const botToken = formData.get('bot_token') as string
   const chatId = formData.get('chat_id') as string
 
@@ -48,7 +66,7 @@ export async function addTelegramDestination(pipelineId: string, formData: FormD
 }
 
 export async function addSlackDestination(pipelineId: string, formData: FormData) {
-  const supabase = await createClient()
+  const supabase = await getAuthorizedClient(pipelineId)
   const webhookUrl = formData.get('webhook_url') as string
 
   const { error } = await supabase.from('destinations').insert({
@@ -63,7 +81,7 @@ export async function addSlackDestination(pipelineId: string, formData: FormData
 }
 
 export async function addEmailDestination(pipelineId: string, formData: FormData) {
-  const supabase = await createClient()
+  const supabase = await getAuthorizedClient(pipelineId)
   const apiKey = formData.get('api_key') as string
   const to = formData.get('to') as string
   const subject = formData.get('subject') as string
@@ -80,7 +98,7 @@ export async function addEmailDestination(pipelineId: string, formData: FormData
 }
 
 export async function addCustomWebhookDestination(pipelineId: string, formData: FormData) {
-  const supabase = await createClient()
+  const supabase = await getAuthorizedClient(pipelineId)
   const endpointUrl = formData.get('endpoint_url') as string
   const secret = formData.get('secret') as string
 
@@ -96,7 +114,7 @@ export async function addCustomWebhookDestination(pipelineId: string, formData: 
 }
 
 export async function deleteDestination(pipelineId: string, destinationId: string) {
-  const supabase = await createClient()
+  const supabase = await getOwnedClient(pipelineId)
 
   const { error } = await supabase
     .from('destinations')
