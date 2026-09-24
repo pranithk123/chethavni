@@ -23,12 +23,12 @@ export function EmptyState({
     <div
       className={cn(
         'rounded-xl px-6 py-12 text-center',
-        variant === 'default' && 'border border-dashed border-sky-200 bg-white',
-        variant === 'subtle' && 'bg-slate-50/50',
+        variant === 'default' && 'border border-dashed border-cyan-200 bg-white/85',
+        variant === 'subtle' && 'bg-cyan-50/50',
         className
       )}
     >
-      <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-sky-50 text-sky-600 ring-1 ring-sky-100">
+      <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-100 text-cyan-700 ring-1 ring-cyan-200">
         <Icon className="h-5 w-5" />
       </div>
       <h3 className="mt-4 text-sm font-semibold text-slate-900">{title}</h3>

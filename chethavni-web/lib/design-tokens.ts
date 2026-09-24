@@ -132,16 +132,16 @@ export const spacing = {
 
 export const borders = {
   // Standard border
-  default: 'border border-slate-200',
+  default: 'border border-amber-200',
 
   // Elevated element border
-  elevated: 'border border-sky-100',
+  elevated: 'border border-cyan-200',
 
   // Dashed border for empty states
-  dashed: 'border border-dashed border-sky-200',
+  dashed: 'border border-dashed border-cyan-200',
 
   // Focus ring
-  focusRing: 'focus-visible:ring-2 focus-visible:ring-sky-200 focus-visible:border-sky-300',
+  focusRing: 'focus-visible:ring-2 focus-visible:ring-indigo-200 focus-visible:border-indigo-300',
 
   // Error state
   errorBorder: 'border-rose-500 focus-visible:ring-rose-200',
@@ -166,7 +166,7 @@ export const shadows = {
   card: 'shadow-sm',
 
   // Hover state shadow
-  hover: 'hover:shadow-[0_8px_30px_rgba(14,165,233,0.08)]',
+  hover: 'hover:shadow-[0_12px_30px_rgba(8,145,178,0.12)]',
 
   // Dialog/modal shadow
   modal: 'shadow-2xl',
@@ -217,7 +217,7 @@ export const interactiveStates = {
   disabled: 'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none',
 
   // Hover background
-  hoverBg: 'hover:bg-slate-50',
+  hoverBg: 'hover:bg-amber-50',
 
   // Focus state
   focus: 'focus:outline-none focus-visible:ring-2',
@@ -225,24 +225,24 @@ export const interactiveStates = {
 
 // Badge/status variants
 export const statusStyles = {
-  active: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100',
-  paused: 'bg-slate-50 text-slate-500 ring-1 ring-slate-200',
-  success: 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-100',
+  active: 'bg-lime-100 text-lime-800 ring-1 ring-lime-200',
+  paused: 'bg-amber-100 text-amber-800 ring-1 ring-amber-200',
+  success: 'bg-lime-100 text-lime-800 ring-1 ring-lime-200',
   warning: 'bg-amber-50 text-amber-700 ring-1 ring-amber-100',
   error: 'bg-rose-50 text-rose-700 ring-1 ring-rose-100',
-  info: 'bg-sky-50 text-sky-700 ring-1 ring-sky-100',
-  neutral: 'bg-slate-50 text-slate-600 ring-1 ring-slate-100',
+  info: 'bg-cyan-100 text-cyan-800 ring-1 ring-cyan-200',
+  neutral: 'bg-amber-100 text-amber-700 ring-1 ring-amber-200',
 } as const
 
 // Button variants (semantic)
 export const buttonStyles = {
-  primary: 'bg-sky-600 text-white hover:bg-sky-700 ring-1 ring-sky-600',
-  primarySoft: 'bg-sky-50 text-sky-700 ring-1 ring-sky-200 hover:bg-sky-100',
-  secondary: 'bg-violet-50 text-violet-700 ring-1 ring-violet-200 hover:bg-violet-100',
+  primary: 'bg-indigo-600 text-white hover:bg-indigo-700 ring-1 ring-indigo-600',
+  primarySoft: 'bg-cyan-100 text-cyan-800 ring-1 ring-cyan-200 hover:bg-cyan-200',
+  secondary: 'bg-fuchsia-100 text-fuchsia-800 ring-1 ring-fuchsia-200 hover:bg-fuchsia-200',
   destructive: 'bg-rose-600 text-white hover:bg-rose-700 ring-1 ring-rose-600',
   destructiveSoft: 'bg-rose-50 text-rose-700 ring-1 ring-rose-200 hover:bg-rose-100',
-  ghost: 'text-slate-500 hover:bg-slate-50 hover:text-slate-800',
-  outline: 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50',
+  ghost: 'text-slate-500 hover:bg-amber-50 hover:text-indigo-950',
+  outline: 'border border-amber-200 bg-white text-slate-700 hover:bg-amber-50',
 } as const
 
 // Integration-specific colors (for destination cards)

@@ -64,10 +64,10 @@ const integrations = [
 
 function toneClasses(tone: string) {
   return {
-    sky: 'bg-sky-50 text-sky-600 ring-sky-100',
-    violet: 'bg-violet-50 text-violet-600 ring-violet-100',
-    indigo: 'bg-indigo-50 text-indigo-600 ring-indigo-100',
-  }[tone] || 'bg-slate-50 text-slate-600 ring-slate-100'
+    sky: 'bg-cyan-100 text-cyan-700 ring-cyan-200',
+    violet: 'bg-fuchsia-100 text-fuchsia-700 ring-fuchsia-200',
+    indigo: 'bg-orange-100 text-orange-700 ring-orange-200',
+  }[tone] || 'bg-amber-100 text-amber-700 ring-amber-200'
 }
 
 export default async function PipelineDetailPage({ params }: PageProps) {
@@ -190,12 +190,12 @@ export default async function PipelineDetailPage({ params }: PageProps) {
   const configuredKeys = new Set(safeDestinations.map((destination) => destination.channel))
 
   return (
-    <div className="min-h-screen bg-[#f8fbff] pb-20 text-slate-800">
-      <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/90 backdrop-blur">
+    <div className="min-h-screen pb-20 text-slate-800">
+      <header className="sticky top-0 z-30 border-b border-amber-200/80 bg-[#fffdf2]/90 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-5 sm:px-7">
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 transition hover:text-sky-700"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 transition hover:text-indigo-700"
           >
             <ArrowLeft className="h-4 w-4" />
             Workflows
@@ -208,8 +208,8 @@ export default async function PipelineDetailPage({ params }: PageProps) {
               size="sm"
               className={`h-8 rounded-lg px-3 text-xs font-semibold ${
                 pipeline.is_active
-                  ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                  : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50'
+                  ? 'border-lime-200 bg-lime-100 text-lime-800 hover:bg-lime-200'
+                  : 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100'
               }`}
             >
               <Power className="mr-1.5 h-3.5 w-3.5" />
@@ -222,14 +222,14 @@ export default async function PipelineDetailPage({ params }: PageProps) {
       <main className="mx-auto max-w-5xl space-y-7 px-5 py-8 sm:px-7 sm:py-10">
         <section>
           <div className="flex items-start gap-3">
-            <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-600 ring-1 ring-sky-100">
+            <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-[0_8px_20px_rgba(79,70,229,0.2)]">
               <Zap className="h-5 w-5" />
             </div>
             <div className="min-w-0">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-sky-600">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-indigo-600">
                 Workflow
               </p>
-              <h1 className="mt-1 truncate text-2xl font-bold tracking-tight text-slate-950">
+              <h1 className="mt-1 truncate text-2xl font-bold tracking-tight text-indigo-950">
                 {pipeline.name}
               </h1>
               <p className="mt-1 text-sm text-slate-500">
@@ -239,19 +239,19 @@ export default async function PipelineDetailPage({ params }: PageProps) {
           </div>
         </section>
 
-        <section className="rounded-xl border border-sky-100 bg-white p-5 sm:p-6">
+        <section className="rounded-xl border border-cyan-200 bg-cyan-50/70 p-5 shadow-[0_12px_35px_rgba(8,145,178,0.08)] sm:p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <Webhook className="h-4 w-4 text-sky-600" />
-                <h2 className="text-sm font-semibold text-slate-900">Trigger</h2>
+                <Webhook className="h-4 w-4 text-cyan-700" />
+                <h2 className="text-sm font-semibold text-indigo-950">Trigger</h2>
               </div>
               <p className="mt-1 text-xs leading-5 text-slate-500">
                 Send a POST request from any service that can call a webhook. Chartink, TradingView,
                 your own application, or another automation platform can use this endpoint.
               </p>
             </div>
-            <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold text-emerald-700 ring-1 ring-emerald-100">
+            <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-lime-100 px-2.5 py-1 text-[10px] font-semibold text-lime-800 ring-1 ring-lime-200">
               <Check className="h-3 w-3" />
               Ready
             </span>
@@ -261,29 +261,29 @@ export default async function PipelineDetailPage({ params }: PageProps) {
             <input
               readOnly
               value={webhookUrl}
-              className="min-w-0 flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 font-mono text-[11px] text-slate-700 outline-none focus:border-sky-300 focus:ring-2 focus:ring-sky-50"
+              className="min-w-0 flex-1 rounded-lg border border-cyan-200 bg-white/80 px-3 py-2.5 font-mono text-[11px] text-slate-700 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
             />
             <CopyButton value={webhookUrl} />
           </div>
 
           <div className="mt-3 flex flex-wrap gap-1.5">
             {['Chartink', 'TradingView', 'Custom webhook', 'Pabbly / Zapier'].map((source) => (
-              <span key={source} className="rounded-md bg-slate-50 px-2 py-1 text-[10px] font-medium text-slate-500 ring-1 ring-slate-100">
+              <span key={source} className="rounded-md bg-white/80 px-2 py-1 text-[10px] font-medium text-cyan-800 ring-1 ring-cyan-200">
                 {source}
               </span>
             ))}
           </div>
         </section>
 
-        <section className="rounded-xl border border-slate-200 bg-white p-5 sm:p-6">
+        <section className="rounded-xl border border-fuchsia-200 bg-fuchsia-50/55 p-5 sm:p-6">
           <div className="flex items-start gap-3">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-violet-50 text-violet-600 ring-1 ring-violet-100">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-fuchsia-100 text-fuchsia-700 ring-1 ring-fuchsia-200">
               <Code2 className="h-4 w-4" />
             </div>
             <div>
               <h2 className="text-sm font-semibold text-slate-900">Data format</h2>
               <p className="mt-1 text-xs leading-5 text-slate-500">
-                Use values from the incoming JSON payload in your outgoing message with variables such as <code className="rounded bg-slate-50 px-1 py-0.5 font-mono text-[10px] text-violet-600">{'{{ticker}}'}</code> or <code className="rounded bg-slate-50 px-1 py-0.5 font-mono text-[10px] text-violet-600">{'{{payload}}'}</code>.
+                Use values from the incoming JSON payload in your outgoing message with variables such as <code className="rounded bg-fuchsia-100 px-1 py-0.5 font-mono text-[10px] text-fuchsia-700">{'{{ticker}}'}</code> or <code className="rounded bg-fuchsia-100 px-1 py-0.5 font-mono text-[10px] text-fuchsia-700">{'{{payload}}'}</code>.
               </p>
             </div>
           </div>
@@ -293,9 +293,9 @@ export default async function PipelineDetailPage({ params }: PageProps) {
               name="template"
               rows={4}
               defaultValue={pipeline.message_template || 'Alert: {{payload}}'}
-              className="w-full resize-y rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono text-xs leading-5 text-slate-700 outline-none focus:border-sky-300 focus:ring-2 focus:ring-sky-50"
+              className="w-full resize-y rounded-lg border border-fuchsia-200 bg-white/75 p-3 font-mono text-xs leading-5 text-slate-700 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
             />
-            <Button type="submit" size="sm" className="h-8 rounded-lg bg-sky-50 px-3 text-xs font-semibold text-sky-700 ring-1 ring-sky-200 hover:bg-sky-100">
+            <Button type="submit" size="sm" className="h-8 rounded-lg bg-indigo-600 px-3 text-xs font-semibold text-white shadow-sm hover:bg-indigo-700">
               Save format
             </Button>
           </form>
@@ -305,7 +305,7 @@ export default async function PipelineDetailPage({ params }: PageProps) {
           <div className="mb-4">
             <div className="flex items-center gap-2">
               <h2 className="text-sm font-semibold text-slate-950">Actions & integrations</h2>
-              <span className="rounded-full bg-violet-50 px-2 py-0.5 text-[10px] font-semibold text-violet-600 ring-1 ring-violet-100">
+                <span className="rounded-full bg-fuchsia-100 px-2 py-0.5 text-[10px] font-semibold text-fuchsia-800 ring-1 ring-fuchsia-200">
                 {safeDestinations.length} connected
               </span>
             </div>
@@ -321,7 +321,7 @@ export default async function PipelineDetailPage({ params }: PageProps) {
               const current = safeDestinations.filter((destination) => destination.channel === integration.key)
 
               return (
-                <div key={integration.key} className="rounded-xl border border-slate-200 bg-white p-5">
+                <div key={integration.key} className="rounded-xl border border-amber-200 bg-white/90 p-5 shadow-[0_8px_24px_rgba(120,75,0,0.04)]">
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
                     <div className="flex min-w-0 items-start gap-3 lg:w-64">
                       <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ring-1 ${toneClasses(integration.tone)}`}>
@@ -331,7 +331,7 @@ export default async function PipelineDetailPage({ params }: PageProps) {
                         <h3 className="text-sm font-semibold text-slate-900">{integration.name}</h3>
                         <p className="mt-0.5 text-[11px] leading-4 text-slate-500">{integration.description}</p>
                         {connected && (
-                          <span className="mt-2 inline-flex rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 ring-1 ring-emerald-100">
+                          <span className="mt-2 inline-flex rounded-full bg-lime-100 px-2 py-0.5 text-[10px] font-semibold text-lime-800 ring-1 ring-lime-200">
                             Connected
                           </span>
                         )}
@@ -341,9 +341,9 @@ export default async function PipelineDetailPage({ params }: PageProps) {
                     <div className="min-w-0 flex-1">
                       {integration.key === 'telegram' && (
                         <form action={handleAddTelegram} className="grid gap-2 sm:grid-cols-2">
-                          <Input name="bot_token" placeholder="Bot token" required className="h-9 rounded-lg bg-slate-50 text-xs" />
-                          <Input name="chat_id" placeholder="Chat or channel ID" required className="h-9 rounded-lg bg-slate-50 text-xs" />
-                          <Button type="submit" size="sm" className="h-8 w-fit rounded-lg bg-sky-50 px-3 text-xs font-semibold text-sky-700 ring-1 ring-sky-200 hover:bg-sky-100">
+                          <Input name="bot_token" placeholder="Bot token" required className="h-9 rounded-lg bg-cyan-50 text-xs" />
+                          <Input name="chat_id" placeholder="Chat or channel ID" required className="h-9 rounded-lg bg-cyan-50 text-xs" />
+                          <Button type="submit" size="sm" className="h-8 w-fit rounded-lg bg-cyan-100 px-3 text-xs font-semibold text-cyan-800 ring-1 ring-cyan-200 hover:bg-cyan-200">
                             Add Telegram
                           </Button>
                         </form>
@@ -351,8 +351,8 @@ export default async function PipelineDetailPage({ params }: PageProps) {
 
                       {integration.key === 'discord' && (
                         <form action={handleAddDiscord} className="flex flex-col gap-2 sm:flex-row">
-                          <Input name="webhook_url" placeholder="https://discord.com/api/webhooks/..." required className="h-9 min-w-0 rounded-lg bg-slate-50 font-mono text-xs" />
-                          <Button type="submit" size="sm" className="h-8 rounded-lg bg-violet-50 px-3 text-xs font-semibold text-violet-700 ring-1 ring-violet-200 hover:bg-violet-100">
+                          <Input name="webhook_url" placeholder="https://discord.com/api/webhooks/..." required className="h-9 min-w-0 rounded-lg bg-fuchsia-50 font-mono text-xs" />
+                          <Button type="submit" size="sm" className="h-8 rounded-lg bg-fuchsia-100 px-3 text-xs font-semibold text-fuchsia-800 ring-1 ring-fuchsia-200 hover:bg-fuchsia-200">
                             Add Discord
                           </Button>
                         </form>
@@ -360,8 +360,8 @@ export default async function PipelineDetailPage({ params }: PageProps) {
 
                       {integration.key === 'slack' && (
                         <form action={handleAddSlack} className="flex flex-col gap-2 sm:flex-row">
-                          <Input name="webhook_url" placeholder="https://hooks.slack.com/services/..." required className="h-9 min-w-0 rounded-lg bg-slate-50 font-mono text-xs" />
-                          <Button type="submit" size="sm" className="h-8 rounded-lg bg-sky-50 px-3 text-xs font-semibold text-sky-700 ring-1 ring-sky-200 hover:bg-sky-100">
+                          <Input name="webhook_url" placeholder="https://hooks.slack.com/services/..." required className="h-9 min-w-0 rounded-lg bg-orange-50 font-mono text-xs" />
+                          <Button type="submit" size="sm" className="h-8 rounded-lg bg-orange-100 px-3 text-xs font-semibold text-orange-800 ring-1 ring-orange-200 hover:bg-orange-200">
                             Add Slack
                           </Button>
                         </form>
@@ -369,10 +369,10 @@ export default async function PipelineDetailPage({ params }: PageProps) {
 
                       {integration.key === 'email' && (
                         <form action={handleAddEmail} className="grid gap-2 sm:grid-cols-2">
-                          <Input name="api_key" type="password" placeholder="Resend API key" required className="h-9 rounded-lg bg-slate-50 font-mono text-xs" />
-                          <Input name="to" type="email" placeholder="Recipient email" required className="h-9 rounded-lg bg-slate-50 text-xs" />
-                          <Input name="subject" placeholder="Subject (optional)" className="h-9 rounded-lg bg-slate-50 text-xs" />
-                          <Button type="submit" size="sm" className="h-8 w-fit rounded-lg bg-sky-50 px-3 text-xs font-semibold text-sky-700 ring-1 ring-sky-200 hover:bg-sky-100">
+                          <Input name="api_key" type="password" placeholder="Resend API key" required className="h-9 rounded-lg bg-cyan-50 font-mono text-xs" />
+                          <Input name="to" type="email" placeholder="Recipient email" required className="h-9 rounded-lg bg-cyan-50 text-xs" />
+                          <Input name="subject" placeholder="Subject (optional)" className="h-9 rounded-lg bg-cyan-50 text-xs" />
+                          <Button type="submit" size="sm" className="h-8 w-fit rounded-lg bg-cyan-100 px-3 text-xs font-semibold text-cyan-800 ring-1 ring-cyan-200 hover:bg-cyan-200">
                             Add email
                           </Button>
                         </form>
@@ -380,9 +380,9 @@ export default async function PipelineDetailPage({ params }: PageProps) {
 
                       {integration.key === 'webhook' && (
                         <form action={handleAddWebhook} className="grid gap-2 sm:grid-cols-[1fr_180px_auto]">
-                          <Input name="endpoint_url" placeholder="https://api.example.com/webhook" required className="h-9 min-w-0 rounded-lg bg-slate-50 font-mono text-xs" />
-                          <Input name="secret" placeholder="Signing secret (optional)" className="h-9 rounded-lg bg-slate-50 text-xs" />
-                          <Button type="submit" size="sm" className="h-8 rounded-lg bg-violet-50 px-3 text-xs font-semibold text-violet-700 ring-1 ring-violet-200 hover:bg-violet-100">
+                          <Input name="endpoint_url" placeholder="https://api.example.com/webhook" required className="h-9 min-w-0 rounded-lg bg-fuchsia-50 font-mono text-xs" />
+                          <Input name="secret" placeholder="Signing secret (optional)" className="h-9 rounded-lg bg-fuchsia-50 text-xs" />
+                          <Button type="submit" size="sm" className="h-8 rounded-lg bg-fuchsia-100 px-3 text-xs font-semibold text-fuchsia-800 ring-1 ring-fuchsia-200 hover:bg-fuchsia-200">
                             Add HTTP
                           </Button>
                         </form>
@@ -391,7 +391,7 @@ export default async function PipelineDetailPage({ params }: PageProps) {
                       {current.length > 0 && (
                         <div className="mt-3 space-y-1.5">
                           {current.map((destination) => (
-                            <div key={destination.id} className="flex items-center justify-between gap-3 rounded-lg bg-slate-50 px-3 py-2 ring-1 ring-slate-100">
+                            <div key={destination.id} className="flex items-center justify-between gap-3 rounded-lg bg-amber-50 px-3 py-2 ring-1 ring-amber-100">
                               <span className="truncate font-mono text-[10px] text-slate-500">
                                 {destination.channel === 'telegram'
                                   ? `Chat: ${destination.config?.chat_id}`
@@ -417,8 +417,8 @@ export default async function PipelineDetailPage({ params }: PageProps) {
             })}
           </div>
 
-          <div className="mt-4 flex items-start gap-3 rounded-xl border border-dashed border-violet-200 bg-violet-50/40 p-4">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-violet-600 ring-1 ring-violet-100">
+          <div className="mt-4 flex items-start gap-3 rounded-xl border border-dashed border-fuchsia-200 bg-fuchsia-50/55 p-4">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-fuchsia-700 ring-1 ring-fuchsia-200">
               <ChevronRight className="h-4 w-4" />
             </div>
             <div>
