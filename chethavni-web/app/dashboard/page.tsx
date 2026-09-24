@@ -12,10 +12,8 @@ import {
   CheckCircle2,
   CircleDot,
   GitBranch,
-  Globe2,
   LogOut,
   MessageSquare,
-  Webhook,
 } from 'lucide-react'
 
 export default async function DashboardPage() {
@@ -96,21 +94,21 @@ export default async function DashboardPage() {
 
           <div className="grid border-t border-cyan-200/70 sm:grid-cols-3">
             <div className="flex items-center gap-3 px-6 py-4 sm:border-r sm:border-cyan-200/70">
-              <Webhook className="h-4 w-4 text-cyan-600" />
+              <Image src="/icons/receive.svg" alt="" width={20} height={20} className="h-5 w-5 object-contain" />
               <div>
                 <p className="text-xs font-semibold text-slate-800">Receive</p>
                 <p className="text-[11px] text-slate-500">Webhooks & events</p>
               </div>
             </div>
             <div className="flex items-center gap-3 px-6 py-4 sm:border-r sm:border-cyan-200/70">
-              <GitBranch className="h-4 w-4 text-fuchsia-600" />
+              <Image src="/icons/process.svg" alt="" width={20} height={20} className="h-5 w-5 object-contain" />
               <div>
                 <p className="text-xs font-semibold text-slate-800">Process</p>
                 <p className="text-[11px] text-slate-500">Map & transform data</p>
               </div>
             </div>
             <div className="flex items-center gap-3 px-6 py-4">
-              <Globe2 className="h-4 w-4 text-orange-500" />
+              <Image src="/icons/deliver.svg" alt="" width={20} height={20} className="h-5 w-5 object-contain" />
               <div>
                 <p className="text-xs font-semibold text-slate-800">Deliver</p>
                 <p className="text-[11px] text-slate-500">Apps & HTTP endpoints</p>
