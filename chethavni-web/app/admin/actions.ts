@@ -33,7 +33,17 @@ export async function activatePlan(formData: FormData) {
     plan_expires_at: expiresAt.toISOString(),
     plan_updated_at: new Date().toISOString(),
   }).eq('id', user.id)
-  if (profileError) throw new Error('Unable to update the user plan.')
+  if (profileError) {
+    console.error('Unable to update the user plan.', {
+      code: profileError.code,
+      details: profileError.details,
+      hint: profileError.hint,
+      message: profileError.message,
+      userId: user.id,
+      plan,
+    })
+    throw new Error('Unable to update the user plan.')
+  }
 
   const { error: subscriptionError } = await admin.from('manual_subscriptions').insert({
     user_id: user.id,
