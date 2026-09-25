@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { CopyButton } from '@/components/ui/copy-button'
 import { DeleteDestinationButton } from '@/components/DeleteDestinationButton'
+import { DeletePipelineButton } from '@/components/DeletePipelineButton'
 import { assertCanAddDestination, assertPipelineOwner } from '@/lib/plan-limits'
 import {
   ArrowLeft,
@@ -92,7 +93,8 @@ export default async function PipelineDetailPage({ params }: PageProps) {
     const { data: { user: currentUser } } = await sb.auth.getUser()
     if (!currentUser) redirect('/login')
     await assertPipelineOwner(sb, id, currentUser.id)
-    await sb.from('pipelines').update({ is_active: !pipeline.is_active }).eq('id', id)
+    const { error } = await sb.from('pipelines').update({ is_active: !pipeline.is_active }).eq('id', id)
+    if (error) throw new Error(error.message)
     revalidatePath(`/pipelines/${id}`)
     revalidatePath('/dashboard')
   }
@@ -207,21 +209,32 @@ export default async function PipelineDetailPage({ params }: PageProps) {
             Workflows
           </Link>
 
-          <form action={toggleStatus}>
-            <Button
-              type="submit"
-              variant="outline"
-              size="sm"
-              className={`h-8 rounded-lg px-3 text-xs font-semibold ${
-                pipeline.is_active
-                  ? 'border-lime-200 bg-lime-100 text-lime-800 hover:bg-lime-200'
-                  : 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100'
-              }`}
-            >
-              <Power className="mr-1.5 h-3.5 w-3.5" />
+          <div className="flex items-center gap-2">
+            <span className={`hidden rounded-full px-2.5 py-1 text-[10px] font-semibold sm:inline-flex ${
+              pipeline.is_active
+                ? 'bg-lime-100 text-lime-800 ring-1 ring-lime-200'
+                : 'bg-amber-100 text-amber-800 ring-1 ring-amber-200'
+            }`}>
               {pipeline.is_active ? 'Active' : 'Paused'}
-            </Button>
-          </form>
+            </span>
+            <form action={toggleStatus}>
+              <Button
+                type="submit"
+                variant="outline"
+                size="sm"
+                aria-label={pipeline.is_active ? 'Pause workflow' : 'Activate workflow'}
+                className={`h-9 rounded-lg px-3 text-xs font-semibold shadow-sm ${
+                  pipeline.is_active
+                    ? 'border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100'
+                    : 'border-lime-300 bg-lime-100 text-lime-900 hover:bg-lime-200'
+                }`}
+              >
+                <Power className="mr-1.5 h-3.5 w-3.5" />
+                {pipeline.is_active ? 'Pause workflow' : 'Activate workflow'}
+              </Button>
+            </form>
+            <DeletePipelineButton pipelineId={id} pipelineName={pipeline.name} />
+          </div>
         </div>
       </header>
 
