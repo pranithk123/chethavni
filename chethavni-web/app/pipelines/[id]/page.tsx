@@ -66,20 +66,21 @@ export default async function PipelineDetailPage({ params }: PageProps) {
 
   if (!user) redirect('/login')
 
-  const { data: pipeline } = await supabase
-    .from('pipelines')
-    .select('*')
-    .eq('id', id)
-    .eq('user_id', user.id)
-    .single()
+  const [{ data: pipeline }, { data: destinations }] = await Promise.all([
+    supabase
+      .from('pipelines')
+      .select('*')
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .single(),
+    supabase
+      .from('destinations')
+      .select('*')
+      .eq('pipeline_id', id)
+      .order('created_at', { ascending: false }),
+  ])
 
   if (!pipeline) notFound()
-
-  const { data: destinations } = await supabase
-    .from('destinations')
-    .select('*')
-    .eq('pipeline_id', id)
-    .order('created_at', { ascending: false })
 
   const safeDestinations = destinations ?? []
   const engineBaseUrl =

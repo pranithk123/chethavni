@@ -26,15 +26,17 @@ export default async function DashboardPage() {
 
   if (!user) redirect('/login')
 
-  const { data: pipelines } = await supabase
-    .from('pipelines')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
+  const [{ data: pipelines }, planSnapshot] = await Promise.all([
+    supabase
+      .from('pipelines')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false }),
+    getPlanSnapshot(supabase, user.id),
+  ])
 
   const workflows = pipelines ?? []
   const activeCount = workflows.filter((pipeline) => pipeline.is_active).length
-  const planSnapshot = await getPlanSnapshot(supabase, user.id)
   const usagePercent = Math.min(
     100,
     Math.round((planSnapshot.executionCount / planSnapshot.limits.executionLimit) * 100)
