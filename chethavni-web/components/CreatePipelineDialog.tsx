@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Plus } from 'lucide-react'
+import Link from 'next/link'
+import { AlertTriangle, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -20,16 +21,23 @@ import { useToast } from '@/components/ui/toast'
 export function CreatePipelineDialog() {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [limitMessage, setLimitMessage] = useState<string | null>(null)
   const { showToast } = useToast()
 
   const handleSubmit = async (formData: FormData) => {
     setLoading(true)
+    setLimitMessage(null)
     try {
       await createPipeline(formData)
       showToast('success', 'Workflow created successfully')
       setOpen(false)
     } catch (error) {
-      showToast('error', error instanceof Error ? error.message : 'Failed to create workflow')
+      const message = error instanceof Error ? error.message : 'Failed to create workflow'
+      if (message.includes('plan limit')) {
+        setLimitMessage(message)
+      } else {
+        showToast('error', message)
+      }
       console.error(error)
     } finally {
       setLoading(false)
@@ -37,7 +45,10 @@ export function CreatePipelineDialog() {
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={(nextOpen) => {
+      setOpen(nextOpen)
+      if (!nextOpen) setLimitMessage(null)
+    }}>
       <DialogTrigger asChild>
         <Button className="h-9 rounded-lg bg-sky-600 px-3.5 text-xs font-semibold text-white ring-1 ring-sky-600 hover:bg-sky-700 transition-colors">
           <Plus className="mr-1.5 h-3.5 w-3.5" />
@@ -52,6 +63,25 @@ export function CreatePipelineDialog() {
             Give your automation a name. You can configure its trigger and integrations on the next screen.
           </DialogDescription>
         </DialogHeader>
+
+        {limitMessage && (
+          <div role="alert" className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-amber-900">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+            <div className="min-w-0">
+              <p className="text-sm font-semibold">Workflow limit reached</p>
+              <p className="mt-1 text-xs leading-5 text-amber-800">
+                {limitMessage}
+              </p>
+              <Link
+                href="/pricing"
+                onClick={() => setOpen(false)}
+                className="mt-2 inline-flex text-xs font-semibold text-indigo-700 underline underline-offset-2 hover:text-indigo-900"
+              >
+                View upgrade options
+              </Link>
+            </div>
+          </div>
+        )}
 
         <form action={handleSubmit} className="space-y-4 py-2">
           <div className="space-y-1.5">
