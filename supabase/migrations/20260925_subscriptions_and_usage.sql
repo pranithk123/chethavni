@@ -139,8 +139,13 @@ language plpgsql
 security definer
 set search_path = public
 as $$
+declare
+  request_role text := coalesce(
+    nullif(current_setting('request.jwt.claim.role', true), ''),
+    nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'role'
+  );
 begin
-  if coalesce(current_setting('request.jwt.claim.role', true), '') <> 'service_role'
+  if coalesce(request_role, '') <> 'service_role'
     and (
       new.plan_tier is distinct from old.plan_tier
       or new.plan_expires_at is distinct from old.plan_expires_at
