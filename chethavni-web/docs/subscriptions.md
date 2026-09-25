@@ -2,7 +2,7 @@
 
 ## Database
 
-Run `../supabase/migrations/20260925_subscriptions_and_usage.sql` in the Supabase SQL editor. The migration is additive and creates the usage, manual subscription, and free entitlement records used by the web app and Go engine.
+Run both `../supabase/migrations/20260925_subscriptions_and_usage.sql` and `../supabase/migrations/20260925_signup_abuse_controls.sql` in the Supabase SQL editor. The migrations are additive and create the usage, manual subscription, free entitlement, and signup rate-limit records used by the web app and Go engine.
 
 ## Environment
 
@@ -25,4 +25,8 @@ Activating a paid plan extends from the existing future expiry date when renewin
 
 ## Current abuse controls
 
-The migration records a free entitlement for each new Auth user, and the app requires verified email before sign-in. The execution engine enforces usage by `user_id`, not source IP. CAPTCHA/Turnstile and signup-IP throttling still require deployment-specific integration because this repository currently uses a direct Supabase server action signup with no request-IP boundary.
+The app accepts Gmail addresses only and canonicalizes Gmail dots and plus aliases before signup. For example, `first.last+test@gmail.com` is treated as `firstlast@gmail.com`. Signup attempts are limited to five per IP hash per hour by `signup_rate_limits`; raw IP addresses are not stored. The app also requires `email_confirmed_at` before login or completing signup.
+
+Enable **Confirm email** in Supabase Auth settings. The email confirmation redirect must point to the deployed app's `/auth/callback` route.
+
+Gmail-only signup and IP throttling reduce casual abuse but cannot stop someone from creating multiple Gmail accounts. CAPTCHA/Turnstile remains an optional additional control that requires provider credentials and an extra verification field in the signup form. The execution engine still enforces usage by `user_id`, not source IP.

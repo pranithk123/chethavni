@@ -3,10 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { canonicalizeGmailAddress, enforceSignupRateLimit } from "@/lib/auth-security";
 
 export async function login(formData: FormData) {
-  const email = formData.get("email") as string;
+  const email = canonicalizeGmailAddress(String(formData.get("email") || ""));
   const password = formData.get("password") as string;
+  if (!email) {
+    redirect(`/login?message=${encodeURIComponent('Use a valid Gmail address.')}`);
+  }
   const supabase = await createClient();
 
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -28,8 +32,12 @@ export async function login(formData: FormData) {
 }
 
 export async function signup(formData: FormData) {
-  const email = formData.get("email") as string;
+  const email = canonicalizeGmailAddress(String(formData.get("email") || ""));
   const password = formData.get("password") as string;
+  if (!email) {
+    redirect(`/login?message=${encodeURIComponent('Sign up with a Gmail address.')}`);
+  }
+  await enforceSignupRateLimit();
   const supabase = await createClient();
 
   const { data, error } = await supabase.auth.signUp({
@@ -41,7 +49,8 @@ export async function signup(formData: FormData) {
     redirect(`/login?message=${encodeURIComponent(error.message)}`);
   }
 
-  if (!data.session) {
+  if (!data.user?.email_confirmed_at) {
+    if (data.session) await supabase.auth.signOut();
     redirect(`/login?message=${encodeURIComponent('Check your email to verify your account before signing in.')}`)
   }
 

@@ -40,7 +40,7 @@ export default async function LoginPage({
                 id="email"
                 name="email"
                 type="email"
-                placeholder="trader@chethavni.com"
+                placeholder="you@gmail.com"
                 required
                 className="h-10 border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus-visible:border-indigo-400 focus-visible:ring-indigo-200"
               />
