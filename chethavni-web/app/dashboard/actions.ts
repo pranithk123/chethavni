@@ -35,7 +35,7 @@ export async function createPipeline(formData: FormData) {
 
   const data = pipelineData as { id: string }
   revalidatePath('/dashboard')
-  redirect(`/pipelines/${data.id}`)
+  return data.id
 }
 export async function signout() {
   const { createClient } = await import("@/lib/supabase/server");

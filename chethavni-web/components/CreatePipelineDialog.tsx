@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { AlertTriangle, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -22,15 +23,16 @@ export function CreatePipelineDialog() {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [limitMessage, setLimitMessage] = useState<string | null>(null)
+  const router = useRouter()
   const { showToast } = useToast()
 
   const handleSubmit = async (formData: FormData) => {
     setLoading(true)
     setLimitMessage(null)
     try {
-      await createPipeline(formData)
-      showToast('success', 'Workflow created successfully')
+      const pipelineId = await createPipeline(formData)
       setOpen(false)
+      router.push(`/pipelines/${pipelineId}`)
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to create workflow'
       if (message.includes('plan limit')) {
