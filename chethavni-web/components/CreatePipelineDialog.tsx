@@ -30,16 +30,19 @@ export function CreatePipelineDialog() {
     setLoading(true)
     setLimitMessage(null)
     try {
-      const pipelineId = await createPipeline(formData)
-      setOpen(false)
-      router.push(`/pipelines/${pipelineId}`)
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to create workflow'
-      if (message.includes('plan limit')) {
-        setLimitMessage(message)
-      } else {
-        showToast('error', message)
+      const result = await createPipeline(formData)
+      if (!result.ok) {
+        if (result.code === 'WORKFLOW_LIMIT') {
+          setLimitMessage(result.message)
+        } else {
+          showToast('error', result.message)
+        }
+        return
       }
+      setOpen(false)
+      router.push(`/pipelines/${result.pipelineId}`)
+    } catch (error) {
+      showToast('error', 'Unable to create workflow. Please try again.')
       console.error(error)
     } finally {
       setLoading(false)

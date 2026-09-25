@@ -28,14 +28,22 @@ export async function createPipeline(formData: FormData) {
   if (error) {
     if (error.message.startsWith('WORKFLOW_LIMIT:')) {
       const [, plan, limit] = error.message.split(':')
-      throw new Error(`You've reached the ${plan === 'free' ? 'Free' : plan} plan limit of ${limit} workflows. Upgrade to create more.`)
+      return {
+        ok: false as const,
+        code: 'WORKFLOW_LIMIT' as const,
+        message: `You've reached the ${plan === 'free' ? 'Free' : plan} plan limit of ${limit} workflows. Upgrade to create more.`,
+      }
     }
-    throw new Error('Unable to create workflow. Please try again.')
+    return {
+      ok: false as const,
+      code: 'CREATE_FAILED' as const,
+      message: 'Unable to create workflow. Please try again.',
+    }
   }
 
   const data = pipelineData as { id: string }
   revalidatePath('/dashboard')
-  return data.id
+  return { ok: true as const, pipelineId: data.id }
 }
 export async function signout() {
   const { createClient } = await import("@/lib/supabase/server");
