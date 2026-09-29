@@ -84,5 +84,9 @@
 @layer base {
   * { @apply border-border outline-ring/50; }
   body { @apply bg-background text-foreground; }
+  body {
+    background-color: #fffaf0;
+    background-image: radial-gradient(circle at 12% 8%, rgba(253, 224, 71, 0.28) 0, transparent 24rem), radial-gradient(circle at 92% 18%, rgba(103, 232, 249, 0.24) 0, transparent 22rem), radial-gradient(circle at 70% 96%, rgba(249, 168, 212, 0.18) 0, transparent 26rem);
+  }
   html { @apply font-sans; }
 }

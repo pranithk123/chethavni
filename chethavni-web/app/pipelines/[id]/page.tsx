@@ -200,11 +200,11 @@ export default async function PipelineDetailPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen pb-20 text-slate-800">
-      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
+      <header className="sticky top-0 z-30 border-b border-yellow-200 bg-[#fffdf7]/95 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-5 sm:px-7">
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 transition hover:text-indigo-700"
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#ef476f] transition hover:text-[#c02d69]"
           >
             <ArrowLeft className="h-4 w-4" />
             Workflows
@@ -242,14 +242,14 @@ export default async function PipelineDetailPage({ params }: PageProps) {
       <main className="mx-auto max-w-5xl space-y-7 px-5 py-8 sm:px-7 sm:py-10">
         <section>
           <div className="flex items-start gap-3">
-            <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white shadow-[0_8px_20px_rgba(79,70,229,0.2)]">
+            <div className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#ff5c7a] text-white shadow-[4px_5px_0_#26304f]">
               <Zap className="h-5 w-5" />
             </div>
             <div className="min-w-0">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-indigo-600">
+              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#ef476f]">
                 Workflow
               </p>
-              <h1 className="mt-1 truncate text-2xl font-bold tracking-tight text-indigo-950">
+              <h1 className="mt-1 truncate text-2xl font-black tracking-tight text-[#26304f]">
                 {pipeline.name}
               </h1>
               <p className="mt-1 text-sm text-slate-500">
@@ -259,7 +259,7 @@ export default async function PipelineDetailPage({ params }: PageProps) {
           </div>
         </section>
 
-        <section className="rounded-xl border border-cyan-200 bg-white p-5 shadow-[0_12px_35px_rgba(8,145,178,0.08)] sm:p-6">
+        <section className="rounded-2xl border-2 border-[#168aad] bg-[#d7f7ff] p-5 shadow-[5px_6px_0_#168aad] sm:p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <div className="flex items-center gap-2">
@@ -295,13 +295,13 @@ export default async function PipelineDetailPage({ params }: PageProps) {
           </div>
         </section>
 
-        <section className="rounded-xl border border-fuchsia-200 bg-white p-5 sm:p-6">
+        <section className="rounded-2xl border-2 border-[#c02d69] bg-[#ffe1ef] p-5 shadow-[5px_6px_0_#c02d69] sm:p-6">
           <div className="flex items-start gap-3">
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-fuchsia-100 text-fuchsia-700 ring-1 ring-fuchsia-200">
               <Code2 className="h-4 w-4" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-slate-900">Data format</h2>
+              <h2 className="text-sm font-bold text-[#26304f]">Data format</h2>
               <p className="mt-1 text-xs leading-5 text-slate-500">
                 Use values from the incoming JSON payload in your outgoing message with variables such as <code className="rounded bg-fuchsia-100 px-1 py-0.5 font-mono text-[10px] text-fuchsia-700">{'{{ticker}}'}</code> or <code className="rounded bg-fuchsia-100 px-1 py-0.5 font-mono text-[10px] text-fuchsia-700">{'{{payload}}'}</code>.
               </p>
@@ -315,7 +315,7 @@ export default async function PipelineDetailPage({ params }: PageProps) {
               defaultValue={pipeline.message_template || 'Alert: {{payload}}'}
               className="w-full resize-y rounded-lg border border-slate-200 bg-white p-3 font-mono text-xs leading-5 text-slate-700 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
             />
-            <Button type="submit" size="sm" className="h-8 rounded-lg bg-indigo-600 px-3 text-xs font-semibold text-white shadow-sm hover:bg-indigo-700">
+            <Button type="submit" size="sm" className="h-8 rounded-lg bg-[#ef476f] px-3 text-xs font-bold text-white shadow-[2px_3px_0_#26304f] hover:bg-[#c02d69]">
               Save format
             </Button>
           </form>
@@ -340,7 +340,7 @@ export default async function PipelineDetailPage({ params }: PageProps) {
               const current = safeDestinations.filter((destination) => destination.channel === integration.key)
 
               return (
-                <div key={integration.key} className="rounded-xl border border-slate-200 bg-white p-5 shadow-[0_8px_24px_rgba(30,41,59,0.06)]">
+                <div key={integration.key} className="rounded-2xl border-2 border-[#26304f]/15 bg-[#fffdf7] p-5 shadow-[3px_4px_0_rgba(38,48,79,0.15)]">
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start">
                     <div className="flex min-w-0 items-start gap-3 lg:w-64">
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center">
